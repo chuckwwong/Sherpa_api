@@ -21,11 +21,11 @@ import json
 import copy
 
 from collections    import defaultdict
-from code.utils.network  import buildNetwork
-from code.utils.flow     import Flow, cleanUp
-from code.utils.ipn      import IPValues, inIPFormat
-from code.utils.rule     import RuleNewlySeen, MatchNewlySeen, ActionNewlySeen 
-from code.utils.linkstate  import buildLinkState, saveLinkState
+from src.utils.network  import buildNetwork
+from src.utils.flow     import Flow, cleanUp
+from src.utils.ipn      import IPValues, inIPFormat
+from src.utils.rule     import RuleNewlySeen, MatchNewlySeen, ActionNewlySeen 
+from src.utils.linkstate  import buildLinkState, saveLinkState
 
 ### global variables
 topo_file  = ''

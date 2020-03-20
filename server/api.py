@@ -1,4 +1,6 @@
+#!/usr/bin/env python3
 import os
+from src import findFlows, makeEvals, sherpa
 from flask import Flask, request
 app = Flask(__name__)
 
@@ -19,6 +21,7 @@ def save_config():
 def load_config():
     '''
     load in configuration to use
+    run findFlows 
     '''
     pass
 
