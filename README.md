@@ -36,6 +36,11 @@ Download [node](https://nodejs.org/en/). I used v12.16.2
 
 Start up the node server to load the react application.
 
+```bash
+cd client
+npm start
+```
+
 ### Contact
 Questions can be passed to the SHERPA developer at dmnicol@illinois.edu
 
