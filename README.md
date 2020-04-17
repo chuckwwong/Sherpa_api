@@ -32,6 +32,8 @@ flask run
 
 ## Run the React UI
 
+Download [node](https://nodejs.org/en/). I used v12.16.2
+
 Start up the node server to load the react application.
 
 ### Contact
