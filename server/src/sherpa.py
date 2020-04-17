@@ -25,16 +25,17 @@ import json
 import copy
 
 from collections    import defaultdict
-from utils.network  import buildNetwork
-from utils.flow     import Flow
-from utils.ipn      import IPValues, inIPFormat
-from utils.rule     import RuleNewlySeen, MatchNewlySeen, ActionNewlySeen 
-from utils.linkstate import buildLinkState, saveLinkState
+from .utils.network  import buildNetwork
+from .utils.flow     import Flow
+from .utils.ipn      import IPValues, inIPFormat
+from .utils.rule     import RuleNewlySeen, MatchNewlySeen, ActionNewlySeen 
+from .utils.linkstate import buildLinkState, saveLinkState
 
 ### global variables
 topo_file  = ''
 rules_file = ''
 flows_file = ''
+ip_file = ''
 evals_file  = ''
 output_file = ''
 flowsDict = {}
@@ -43,11 +44,12 @@ linkState = {}
 
 
 def resetGlobalVariables():
-    global topo_file, rules_file, flows_file, evals_file, output_file, flowsDict, failedToRoute, linkState
+    global topo_file, rules_file, flows_file, ip_file, evals_file, output_file, flowsDict, failedToRoute, linkState
 
     topo_file  = ''
     rules_file = ''
     flows_file = ''
+    ip_file = ''
     evals_file  = ''
     output_file = ''
     flowsDict = {}
@@ -360,7 +362,7 @@ def findFlowsToTest( evalDict, flowsDict ):
 
     return sorted(list(ff2test))
 
-def sherpa(cmd_list):
+def sherpa(eval_path,out_path):
     global topo_file, rules_file, flows_file, ip_file, evals_file
 
     ### to support access through this function call rather than a command line, we'll clear
@@ -368,7 +370,7 @@ def sherpa(cmd_list):
     ###
     resetGlobalVariables()
 
-    parseArgs(cmd_list)
+    parseArgs_exp(eval_path,out_path)
 
     ### if the evaluation file has a 'session' block, that block contains file path descriptors
     ### for the topology, rules, ip addresses, and flows. Use these if present, but report
@@ -498,6 +500,31 @@ def sherpa(cmd_list):
             of.write(estr)
 
     return evalsDict 
+
+### functions to run with Sherpa api
+
+def parseArgs_exp(eval_path,out_path):
+    global output_file, evals_file, topo_file, rules_file, flows_file, ip_file
+    output_file = out_path
+    evals_file = eval_path
+    with open(eval_path,'r') as ep:
+        eval_args = json.load(ep)
+        sessionDict = eval_args['session']
+        topo_file = sessionDict['topo_file']
+        rules_file = sessionDict['rules_file']
+        flows_file = sessionDict['flows_file']
+        ip_file = sessionDict['ip_file']
+
+
+def run_exp(eval_path,out_path):
+    '''
+    Run SDN flow evaluation given eval json
+    '''
+    # run a modified parseArgs
+    # then run sherpa function
+    sherpa(eval_path,out_path)
+
+    
         
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-To use sherpa
+To use sherpa api
  a) Note that a description of the SHERPA system is in the subdirectory sherpa/docs/SHERPA.docxs
  b) make sure your python installation is python 3. The scripts can be run as executables provided their permissions support this, and that your (unix) environment calls up python3 when the command
      % /usr/bin/env python3
@@ -7,32 +7,32 @@ To use sherpa
  c) make sure that your $PYTHONPATH includes the path to the directory in which this README.txt appears,
     'sherpa'
 
- d) the examples we have from Boeing can be run as follows.  From the command-line in the sherpa directory
-       % code/findFlows.py -cmd cmd/flows-script-1
+ ## Run the Flask Server
 
-        This will create files session-1.json and flows-1.json in sherpa/exc
+Set up a [virtual environment](https://docs.python-guide.org/dev/virtualenvs/) for the backend server and activate it.
 
-       % code/makeEvals.py -cmd cmd/evals-script-1
+Switch directory to the "server" folder and use pip to install the required files.
 
-        You interact with the script to create evaluations and after you are finished the script writes
-        those evaluations into the file
+```bash
+cd server
+pip install -r requirements.txt 
+```
 
-         sherpa/exc/evals-1.json
+Run the flask app to start up the server.
 
+```bash
+export FLASK_APP=api.py
+export FLASK_ENV=development # remove this line when deploying and not debugging
+flask run
+```
 
-        % code/sherpa.py -cmd cmd/sherpa-script-1
+## Run the React UI
 
-        This creates an output file sherpa/exc/output-1.json
+Start up the node server to load the react application.
 
-
-    You can run the topo2 and topo3 examples in exactly the same way, just replacing the string '-1' in the 
-    commands above to '-2' or '-3'.
-
-    The results of going through this process for the '-1', '-2', and '-3' sets are recorded 
-    in the subdirectory 'examples'
-
-
+### Contact
 Questions can be passed to the SHERPA developer at dmnicol@illinois.edu
+Questions regarding the SHERPA API can be passed to cwwong3@illinois.edu
 
 
 

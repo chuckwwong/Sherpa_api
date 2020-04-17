@@ -18,7 +18,7 @@ import io
 import shutil
 import json
 from collections import defaultdict
-from utils.network import buildNetwork
+from .utils.network import buildNetwork
 
 topo_file  = ''
 flows_file = ''
@@ -104,13 +104,11 @@ def listTerms(flowsTable, linksTable):
     
     print('link names')
     for idx in range(0,len(linksTable)):
-        print('\t', linksTable[idx])
-   
+        print('\t', linksTable[idx])   
 
 def displayFlow( fdict ):
     fstr = json.dumps( fdict, indent=4 ) 
     print(fstr)
-
 
 def make_flowsTable( flowDict ):
     fips = sorted( flowDict )
@@ -328,6 +326,68 @@ def makeOneEval( flowsDict, linkNames, flowsTable, linksTable ):
         print('no flows or no links given.  Eavluation skipped')
         return {} 
     return {'flows':flows, 'links':links }
+
+### functions to run with Sherpa API
+
+def get_flows_rules(session_path):
+    '''
+    This corresponds to api "upload"
+    Return the flows and links for the evalution user selection
+    '''
+    # parse session path to get session file to get topoDict and flowDict
+    topoDict, flowsDict,_ = parseSession(session_path)
+    # then create linkDefs, then create links and flows
+    linkDefs = mineLinkDefs(topoDict)
+
+    linkNames, _ = make_linksTable(linkDefs)
+    
+    return linkNames, flowsDict
+
+def parseSession(session_path,eval_path=''):
+    '''
+    Modification of parseArgs function to parse session_path file to
+    get topoDict and flowsDict
+    '''
+    global evals_file
+    session_file = session_path
+    if not os.path.isfile(session_file):
+        print('Session file',session_file,'does not exist', file=sys.stderr )
+        #### replace with return Error
+        os._exit(1)
+
+    session_dict = readFile( session_file, 'Problem reading sessions file '+session_file )
+
+    topo_file = session_dict['topo_file']
+    fullTopoDict = readFile( topo_file, 'Problem reading topology file '+topo_file )
+    topoDict = fullTopoDict['one_hop_neighbor_nodes']
+
+    rules_file = session_dict['rules_file']
+    rulesDict = readFile( rules_file, 'Problem reading rules file '+rules_file)
+
+    flows_file = session_dict['flows_file']
+    flowsDict = readFile( flows_file, 'Problem reading flows file '+flows_file)
+
+    
+    evals_file = eval_path
+
+    output = {}
+
+    output['session'] = {}
+    output['session'].update( session_dict )
+    output['session']['session_file'] = session_file
+    
+    return topoDict, flowsDict, output
+
+def make_Eval(session_path,eval_path,flows,links):
+    '''
+    This corresponds to 
+    Take in user selected flows and rules
+    '''
+    _,_,outputDict = parseSession(session_path,eval_path) 
+    #### change for later, when there are multiple evaluations
+    evalDic = {}
+    evalDic[1] = {'flows':flows,'links':links}
+    wrapUp(outputDict,evalDic)
 
 def main():
 

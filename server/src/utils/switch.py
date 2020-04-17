@@ -21,8 +21,8 @@
 ###      for loops in the paths and rejects evolving paths that encounter them
 ###
 from collections import defaultdict
-from utils.rule import Rule
-from utils.ipn import IPValues, Int2IP
+from .rule import Rule
+from .ipn import IPValues, Int2IP
 
 import copy
 import pdb

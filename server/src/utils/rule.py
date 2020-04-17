@@ -19,7 +19,7 @@
 ###     are customized, selected by the attribute of the rule's 'action' dictionary. 
 ###
 from collections import defaultdict
-from utils.ipn  import inIPFormat, IPValues
+from .ipn  import inIPFormat, IPValues
 import pdb
 
 RuleAttributes = ('actions','idle_timeout','packet_count','hard_timeout','byte_count',

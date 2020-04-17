@@ -11,8 +11,8 @@
 ###     (and ports) to other switches
 ###    
 from collections  import defaultdict
-from utils.switch import Switch
-from utils.ipn    import IPValues
+from .switch import Switch
+from .ipn    import IPValues
 import pdb
 
 ### topoDict has format of node id (e.g. 'n17') as index into dictionary, with a value of a list

@@ -21,11 +21,11 @@ import json
 import copy
 
 from collections    import defaultdict
-from src.utils.network  import buildNetwork
-from src.utils.flow     import Flow, cleanUp
-from src.utils.ipn      import IPValues, inIPFormat
-from src.utils.rule     import RuleNewlySeen, MatchNewlySeen, ActionNewlySeen 
-from src.utils.linkstate  import buildLinkState, saveLinkState
+from .utils.network  import buildNetwork
+from .utils.flow     import Flow, cleanUp
+from .utils.ipn      import IPValues, inIPFormat
+from .utils.rule     import RuleNewlySeen, MatchNewlySeen, ActionNewlySeen 
+from .utils.linkstate  import buildLinkState, saveLinkState
 
 ### global variables
 topo_file  = ''
@@ -60,7 +60,7 @@ def resetGlobalVariables():
     RuleNewlySeen = set()
     ActionNewlySeen = set()
 
-
+'''
 def parseArgs(cmd_input):
     global topo_file, rules_file, flows_file, output_file, ip_file, session_file
     global minimum_hops
@@ -126,7 +126,8 @@ def parseArgs(cmd_input):
         os._exit(1)
        
     minimum_hops = int(args.mh) if args.mh else 0
- 
+''' 
+
 def readTopoFile( topo_file ):
     try:
         with open(topo_file,'r') as tf:
@@ -194,7 +195,6 @@ def mineRules( switches ):
         
     return hdr_template 
     
-
 
 ### a link between switches is seen by one switch as a particular port id, and by the other switch
 ### by a potentially different port id.  This function creates a nested dictionary structure which,
@@ -267,7 +267,7 @@ def findViableFlows( switches, neighborMap, mh = 0):
                 results[ dname ] = dflow.vars
 
     return results  
-
+'''
 def findFlows(cmd_array):
     global MatchNewlySeen, RuleNewlySeen, ActionNewlySeen
    
@@ -349,7 +349,91 @@ def findFlows(cmd_array):
         with open(output_file,'w') as of:
             estr = json.dumps( resultsDict, indent=4 )
             of.write(estr)
+'''
+def findFlows(top_file,rule_file,ipn_file,mh,out_file,sess_file):
+    global MatchNewlySeen, RuleNewlySeen, ActionNewlySeen
+   
+    resetGlobalVariables()
+ 
+    #parseArgs(cmd_array)
+    output_file = out_file
+    session_file = sess_file
 
+    ### topology dictionary is index by node id (e.g. 'n17') with value equal to a list of other 
+    ### node ids of neighbors, where we assume that the order in the list corresponds to port numbers
+    ### 1, 2, and so on
+    topoDict  = readTopoFile( top_file )
+
+    ### rules file has one key 'nodes', which leads to a dictionary indexed by node id (e.g. 'n17')
+    ### which leads to a dictionary with a mysterious single key which is a numerical code of some kind,
+    ### which leads to a list of dictionaries, each of which describes a rule
+    rulesDict = readRulesFile( rule_file )
+
+    ### the ip file describes IP addresses associated with the switches.  The dictionary is
+    ### indexed by the node id, maps to a list of CIDR addresses
+    ###
+    nodeIPs   = readIPFile( ipn_file )
+
+    ### switches is a dictionary indexed by switch (node) id, each mapped to a dictionary
+    ### whose integer keys are port numbers and whose value for a port number is the node identity
+    ### of a neighbor
+    ###
+    switches    = buildNetwork(topoDict, rulesDict, nodeIPs )
+
+    ### the parsing of the topo and rules files may encounter attributes in the rules that we have not seen
+    ### before.   These should be flagged for the developer to include in the code
+    ###   sets RuleNewlySeen, MatchNewlySeen and ActionNewlySeen are modified in utils/rule.py when
+    ### these new attributes are discovered
+    ###
+    newAttributes = False
+    if RuleNewlySeen:
+        print('unknown rule attributes seen in configuration, report to developer', repr(RuleNewlySeen),\
+                file = sys.stderr)
+        newAttributes = True
+
+    if MatchNewlySeen:
+        print('unknown match attributes seen in configuration, report to developer', repr(MatchNewlySeen),\
+                file=sys.stderr)
+        newAttributes = True
+
+    if ActionNewlySeen:
+        print('unknown action attributes seen in configuration, report to developer', repr(ActionNewlySeen),\
+                file=sys.stderr)
+        newAttributes = True
+
+    if newAttributes:
+        #### Change to return error
+        os._exit(1)
+
+    buildLinkState( switches, linkState )
+
+    ### save a pointer to the linkState structure in all the switches
+    saveLinkState( switches, linkState ) 
+
+    ### create a data structure that aids in routing 
+    neighborMap = makeNeighborMap( switches )
+
+    ### find all flows with at least 'minimum_hops' hops between switches
+    ###
+    resultsDict = findViableFlows( switches, neighborMap, mh = minimum_hops )
+  
+    ### clean up the flows in resultsDict to remove extraneous attributes
+    ###
+    for flowName, flow in resultsDict.items():
+        cleanUp( flow )
+ 
+    ### record the results to file 
+    if output_file:     
+        sessionDict = {'command_string':cmd_str,'topo_file':top_file,'rules_file':rule_file,\
+             'ip_file':ipn_file,'flows_file':output_file}
+
+        with open(session_file,'w') as sf:
+            sstr = json.dumps( sessionDict, indent=4 )
+            sf.write(sstr)
+
+        with open(output_file,'w') as of:
+            estr = json.dumps( resultsDict, indent=4 )
+            of.write(estr)
 
 if __name__ == "__main__":
     findFlows(sys.argv[1:])
