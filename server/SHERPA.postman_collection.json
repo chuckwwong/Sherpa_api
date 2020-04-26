@@ -1,0 +1,192 @@
+{
+	"info": {
+		"_postman_id": "f2fd346f-cc4c-47f6-8300-e075be46eede",
+		"name": "SHERPA",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "upload Test",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "topology",
+							"contentType": "application/json",
+							"description": "network topology json file",
+							"type": "file",
+							"src": "/Users/chuckwong/Documents/SDN_Research/sherpa/models/topo1/topo1_topology.json"
+						},
+						{
+							"key": "rules",
+							"contentType": "application/json",
+							"description": "flow rules json file",
+							"type": "file",
+							"src": "/Users/chuckwong/Documents/SDN_Research/sherpa/models/topo1/topo1_flows.json"
+						},
+						{
+							"key": "nodeIPs",
+							"contentType": "json",
+							"description": "nodeIP json file",
+							"type": "file",
+							"src": "/Users/chuckwong/Documents/SDN_Research/sherpa/models/topo1/n2ip.json"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/upload?name=TestUpload&mh=2",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"upload"
+					],
+					"query": [
+						{
+							"key": "name",
+							"value": "TestUpload"
+						},
+						{
+							"key": "mh",
+							"value": "2"
+						}
+					]
+				},
+				"description": "Testing the upload of a session."
+			},
+			"response": []
+		},
+		{
+			"name": "get uploaded sessions",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/sessions",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"sessions"
+					]
+				},
+				"description": "you can pull a list of sessions previously saved to run experiments on them again. Used by front end to list all used sessions"
+			},
+			"response": []
+		},
+		{
+			"name": "Load previous Session",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/load?session_name=TestUpload_mh_2",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"load"
+					],
+					"query": [
+						{
+							"key": "session_name",
+							"value": "TestUpload_mh_2"
+						}
+					]
+				},
+				"description": "this api test is to make sure the end point to load in previous uploaded files can be reused to run experiments again."
+			},
+			"response": []
+		},
+		{
+			"name": "Run Experiment Test",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"flows\": [\n        \"n1-n15-1\",\n        \"n10-n12-2\"\n    ],\n    \"links\": [\n        \"n1-n4\",\n        \"n11-n9\"\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/run?session_name=TestUpload_mh_2&eval_name=testSherp",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"run"
+					],
+					"query": [
+						{
+							"key": "session_name",
+							"value": "TestUpload_mh_2"
+						},
+						{
+							"key": "eval_name",
+							"value": "testSherp"
+						}
+					]
+				},
+				"description": "Using a simple array of flows and links, see if the evaluation and sherpa experiment works"
+			},
+			"response": []
+		},
+		{
+			"name": "Get created evals",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/evals?session_name=TestUpload_mh_2",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"evals"
+					],
+					"query": [
+						{
+							"key": "session_name",
+							"value": "TestUpload_mh_2"
+						}
+					]
+				},
+				"description": "Gets list of previously created evals for later use"
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
