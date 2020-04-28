@@ -51,7 +51,7 @@ def upload_config():
         nodeIPs:    user json input of network IPs
     output:
         sess:       name of the created session for identification
-        flows:      the list of flows in this session with given mh
+        flows:      the dictionary of flows in this session with given mh
         links:      the list of links in this session with given mh
     '''
     #### Need to make the operation atomic in case of failure
