@@ -10,12 +10,6 @@ class ListSelect extends Component {
 
     return (
       <div>
-        <div>
-          Flow list goes here
-        </div>
-        <div>
-          Link list goes here
-        </div>
       </div>
     );
   }

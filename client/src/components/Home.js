@@ -13,6 +13,7 @@ class Home extends Component {
       sessions: {},
       name: '',
       mh: '0',
+      error: '',
       topo_file: undefined,
       rule_file: undefined,
       node_file: undefined,
@@ -70,7 +71,7 @@ class Home extends Component {
     formData.append("rules", this.state.rule_file,this.state.rule_file.name);
     formData.append("nodeIPs", this.state.node_file,this.state.node_file.name);
 
-    var requestOptions = {
+    let requestOptions = {
       method: 'POST',
       body: formData,
       redirect: 'follow'
@@ -81,18 +82,28 @@ class Home extends Component {
       console.log("upload",data);
       if (data.success) {
         this.setState({
-          success: true,
+          success: data.success,
           session: data.session,
           flows: data.flows,
           links: data.links 
         });
+      } else {
+        this.setState({
+          error: data.message
+        });
       }
-    }).catch(error => console.log('error', error));
-    // get flows and links and session name and pass props
+    }).catch(error => {
+      // catching errors when backend fails
+      console.log('error', error);
+    });
+    // TODO: THIS IS BAD, use history to pass props instead
     this.props.uploadResp(this.state.session,this.state.flows,this.state.links);
+    console.log(this.state);
     // redirect to session page
     const {history} = this.props;
-    if (this.state.success) history.push("/session");
+    if (this.state.success){
+      history.push(`/session/${this.state.session}`)
+    };
   }
 
   loadSession = () => {
@@ -147,6 +158,7 @@ class Home extends Component {
           <Modal.Body>
             <p>
               Basic Upload Instructions
+              {this.state.error}
             </p>
             {/* Error message handling goes here*/}
             <form>
@@ -216,10 +228,11 @@ class Home extends Component {
           </Modal.Header>
           <Modal.Body>
             <p>
-              Listing out past sessions will go here
+              Listing out previous sessions will go here
             </p>
           </Modal.Body>
           <Modal.Footer>
+            <Button>Delete</Button>
             <Button onClick={this.loadSession}>Load</Button>
           </Modal.Footer>
         </Modal>

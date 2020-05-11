@@ -106,7 +106,7 @@ def upload_config():
     ## return flows and rules with the given configurations
     linksList, flowsDict = makeEvals.get_flows_rules(sess_file)
     # create response json returning flows and rules of session
-    return ret_json(sess=exp_name,flows=flowsDict,links=linksList) 
+    return ret_json(sess=folder_n,flows=flowsDict,links=linksList) 
 
 @app.route('/load',methods=["GET"])
 def load_config():

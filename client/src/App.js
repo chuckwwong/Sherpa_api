@@ -43,7 +43,7 @@ class App extends Component {
                 <Route path="/" component={() => <Home 
                   uploadResp={this.getUploadResp}
                   history={this.state.history}/>} exact/>
-                <Route path="/session" component={()=><Session 
+                <Route path="/session/:session_name" component={()=><Session 
                   session_name={this.state.session_name}
                   flows={this.state.flows}
                   links={this.state.links}
