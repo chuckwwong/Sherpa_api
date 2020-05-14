@@ -28,7 +28,9 @@ def ret_json(success=True,status=200,msg=None,sess=None,flows=None,links=None):
     Helper Function to format json response output
     '''
     if not flows and not links:
-        if msg:
+        if sess:
+            return json.dumps({'success':success,'session':sess}),status,{'ContentType':'application/json'}
+        elif msg:
             return json.dumps({'success':success,'message':msg}),status,{'ContentType':'application/json'}
         else:
             return json.dumps({'success':success}),status,{'ContentType':'application/json'}
@@ -51,8 +53,6 @@ def upload_config():
         nodeIPs:    user json input of network IPs
     output:
         sess:       name of the created session for identification
-        flows:      the dictionary of flows in this session with given mh
-        links:      the list of links in this session with given mh
     '''
     #### Need to make the operation atomic in case of failure
     #parameter check
@@ -103,10 +103,8 @@ def upload_config():
     sess_file = os.path.join(session_n,'session.json') 
     flows_file = os.path.join(session_n,'flows.json')
     findFlows.findFlows(top_path,rule_path,IP_path,mh,flows_file,sess_file)
-    ## return flows and rules with the given configurations
-    linksList, flowsDict = makeEvals.get_flows_rules(sess_file)
     # create response json returning flows and rules of session
-    return ret_json(sess=folder_n,flows=flowsDict,links=linksList) 
+    return ret_json(sess=folder_n) 
 
 @app.route('/load',methods=["GET"])
 def load_config():
@@ -129,6 +127,7 @@ def load_config():
     if not os.path.exists(session_n):
         return ret_json(False,404,msg='Session does not exist')
     sess_file = os.path.join(session_n,'session.json')
+    ## return flows and rules with the given configurations
     linksList, flowsDict = makeEvals.get_flows_rules(sess_file)
     # get session file and run makeEvals, and return the links and flows
     return ret_json(sess=sess,flows=flowsDict,links=linksList)
