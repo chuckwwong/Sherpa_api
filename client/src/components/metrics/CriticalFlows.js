@@ -12,6 +12,7 @@ class CriticalFlows extends Component {
       lambda: 1,
       link_f: true,
       switch_f: false,
+      neigh_f: false,
       output_f: undefined
     };
 
@@ -19,6 +20,20 @@ class CriticalFlows extends Component {
 
   componentDidMount() {
     console.log("Critical Flow", this.props);
+    let {session_name} = this.props.match.params;
+    // call fetch
+    fetch(`http://localhost:5000/load?session_name=${session_name}`)
+    .then(rsp => rsp.json())
+    .then(data => {
+      console.log(data);
+      if (data.success) {
+        this.setState({
+          success: data.success,
+          flows: data.flows,
+          links: data.links 
+        });
+      }
+    }).catch(error => console.log('error', error));
   }
 
   handleName = event => {

@@ -11,8 +11,7 @@ class Session extends Component {
   constructor(props){
     super(props);
     this.state = {
-      flows: {},
-      links: [],
+      success: false
     };
   }
 
@@ -23,19 +22,16 @@ class Session extends Component {
     fetch(`http://localhost:5000/load?session_name=${session_name}`)
     .then(rsp => rsp.json())
     .then(data => {
-      console.log(data);
       if (data.success) {
         this.setState({
-          success: data.success,
-          flows: data.flows,
-          links: data.links 
+          success: data.success
         });
       }
     }).catch(error => console.log('error', error));
   }
 
   render() {
-    if (!this.state.flows || !this.state.links) {
+    if (!this.state.success) {
       return (
         <div>
           Loading...

@@ -59,12 +59,11 @@ class CustomSherpa extends Component {
     return (
       <div>
         {this.state.links.map((item,index) => (
-          <label>
+          <label key={item}>
             <input
               type="checkbox"
               checked={!!this.state.links_ch[item]}
               onChange={event => this.handleLinksCheck(item,event)}
-              key={index} 
             />
             {item}
           </label>
@@ -146,7 +145,6 @@ class CustomSherpa extends Component {
       key
     );
     let json = JSON.stringify({flows,links});
-    
 
     let requestOptions = {
       method: 'POST',
@@ -155,7 +153,7 @@ class CustomSherpa extends Component {
       redirect: 'follow'
     };
     let {session_name} = this.props.match.params;
-    fetch(`http://localhost:5000/run?session_name=${session_name}&eval_name=${this.state.eval_name}`,requestOptions)
+    fetch(`http://localhost:5000/sherpa?session_name=${session_name}&eval_name=${this.state.eval_name}`,requestOptions)
     .then(rsp => rsp.blob())
     .then(blob => {
       let a = document.createElement("a");

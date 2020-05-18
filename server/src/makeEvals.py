@@ -17,12 +17,14 @@ import os
 import io
 import shutil
 import json
+#from sets import Set
 from collections import defaultdict
 from .utils.network import buildNetwork
 
 topo_file  = ''
 flows_file = ''
 rules_file = ''
+switch_file = ''
 evals_file = ''
 
 n2n = defaultdict(int)
@@ -335,13 +337,13 @@ def get_flows_rules(session_path):
     Return the flows and links for the evalution user selection
     '''
     # parse session path to get session file to get topoDict and flowDict
-    topoDict, flowsDict,_ = parseSession(session_path)
+    topoDict, flowsDict, switchNodes,_ = parseSession(session_path)
     # then create linkDefs, then create links and flows
     linkDefs = mineLinkDefs(topoDict)
 
     linkNames, _ = make_linksTable(linkDefs)
     
-    return linkNames, flowsDict
+    return linkNames, flowsDict, switchNodes
 
 def parseSession(session_path,eval_path=''):
     '''
@@ -367,6 +369,8 @@ def parseSession(session_path,eval_path=''):
     flows_file = session_dict['flows_file']
     flowsDict = readFile( flows_file, 'Problem reading flows file '+flows_file)
 
+    switch_file = session_dict['switch_file']
+    switchNodes = readFile( switch_file, 'Problem reading switch file'+switch_file)
     
     evals_file = eval_path
 
@@ -376,14 +380,29 @@ def parseSession(session_path,eval_path=''):
     output['session'].update( session_dict )
     output['session']['session_file'] = session_file
     
-    return topoDict, flowsDict, output
+    return topoDict, flowsDict, switchNodes, output
+
+def switch2Link(session_path,switch):
+    '''
+    Given a list of switches, get the list of links that correspond to the
+    selected switches
+    '''
+    links_set = set()
+    # parse session path to get session file to get topoDict and flowDict
+    _,_, switchNodes,_ = parseSession(session_path)
+    for sn in switch:
+        links_set.update(switchNodes[sn])
+    return list(links_set)
+
+
+
 
 def make_Eval(session_path,eval_path,flows,links):
     '''
     This corresponds to 
     Take in user selected flows and rules
     '''
-    _,_,outputDict = parseSession(session_path,eval_path) 
+    _,_,_,outputDict = parseSession(session_path,eval_path) 
     #### change for later, when there are multiple evaluations
     evalDic = {}
     evalDic[1] = {'flows':flows,'links':links}
