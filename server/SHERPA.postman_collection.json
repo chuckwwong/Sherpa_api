@@ -18,26 +18,26 @@
 							"contentType": "application/json",
 							"description": "network topology json file",
 							"type": "file",
-							"src": "/Users/chuckwong/Documents/SDN_Research/sherpa/models/topo1/topo1_topology.json"
+							"src": "/Users/chuckwong/Documents/SDN_Research/sherpa/models/topo2/topo2_topology.json"
 						},
 						{
 							"key": "rules",
 							"contentType": "application/json",
 							"description": "flow rules json file",
 							"type": "file",
-							"src": "/Users/chuckwong/Documents/SDN_Research/sherpa/models/topo1/topo1_flows.json"
+							"src": "/Users/chuckwong/Documents/SDN_Research/sherpa/models/topo2/topo2_flows.json"
 						},
 						{
 							"key": "nodeIPs",
 							"contentType": "json",
 							"description": "nodeIP json file",
 							"type": "file",
-							"src": "/Users/chuckwong/Documents/SDN_Research/sherpa/models/topo1/n2ip.json"
+							"src": "/Users/chuckwong/Documents/SDN_Research/sherpa/models/topo2/n2ip.json"
 						}
 					]
 				},
 				"url": {
-					"raw": "http://127.0.0.1:5000/upload?name=TestUpload&mh=2",
+					"raw": "http://127.0.0.1:5000/upload?name=SampleSession&mh=6",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -52,11 +52,11 @@
 					"query": [
 						{
 							"key": "name",
-							"value": "TestUpload"
+							"value": "SampleSession"
 						},
 						{
 							"key": "mh",
-							"value": "2"
+							"value": "6"
 						}
 					]
 				},
@@ -93,7 +93,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://127.0.0.1:5000/load?session_name=TestUpload_mh_2",
+					"raw": "http://127.0.0.1:5000/load?session_name=SampleSession_mh_6",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -108,7 +108,7 @@
 					"query": [
 						{
 							"key": "session_name",
-							"value": "TestUpload_mh_2"
+							"value": "SampleSession_mh_6"
 						}
 					]
 				},
@@ -184,6 +184,119 @@
 					]
 				},
 				"description": "Gets list of previously created evals for later use"
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Session",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/rm_sess?session_name=Chuck_mh_2",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"rm_sess"
+					],
+					"query": [
+						{
+							"key": "session_name",
+							"value": "Chuck_mh_2"
+						}
+					]
+				},
+				"description": "End point to remove a previously created experiment session"
+			},
+			"response": []
+		},
+		{
+			"name": "Switch Metric (Case 2)",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"flows\": [\n\t\t\"n14-n11-0\",\n\t\t\"n11-n14-2\",\n\t\t\"n10-n12-2\",\n\t\t\"n10-n9-2\"\n\t],\n\t\"switch\": [\n\t\t\"n6\",\n\t\t\"n12\"\n\t]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/switch?session_name=SampleSession_mh_6&eval_name=testSwitch",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"switch"
+					],
+					"query": [
+						{
+							"key": "session_name",
+							"value": "SampleSession_mh_6"
+						},
+						{
+							"key": "eval_name",
+							"value": "testSwitch"
+						}
+					]
+				},
+				"description": "Metric 2. Given user selected critical flows, and switches that will fail, which critical flows will be impacted?"
+			},
+			"response": []
+		},
+		{
+			"name": "Critical Flow w.r.t link failure",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"flows\": [\n\t\t\"n10-n9-1\"\n\t],\n\t\"links\": [\n\t\t\"n12-n6\",\n        \"n10-n6\",\n        \"n12-n9\",\n        \"n2-n3\",\n        \"n6-n9\",\n        \"n11-n14\",\n        \"n10-n9\"\n\t],\n\t\"failure_rate\": 0.5,\n\t\"time\": 5,\n\t\"tolerance\": 0.2\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/critf_link?session_name=SampleSession_mh_6&eval_name=testCritLink",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"critf_link"
+					],
+					"query": [
+						{
+							"key": "session_name",
+							"value": "SampleSession_mh_6"
+						},
+						{
+							"key": "eval_name",
+							"value": "testCritLink"
+						}
+					]
+				},
+				"description": "Select critical flows, select possible links to fail, select time epoch, and failure rate of links."
 			},
 			"response": []
 		}
