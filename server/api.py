@@ -256,14 +256,88 @@ def run_switch():
 
 @app.route('/critf_link',methods=["POST"])
 def critf_link():
-    return ('',501)
+    '''
+    run experiment with evaluation for the metric,
+    the probability that a specific flow will fail due to
+    randomly failing links in L, given independent failure rate r,
+    in time epoch T
+
+    Request Arguments:
+        session_name: the session to pull previously uploaded data from
+        eval_name:    name of user specified evaluation
+    JSON Arguments:
+        flow(s):      array of user selected flows to evaluate.
+                        For now, assume only a single flow
+        links:        array of user selected links to evaluate
+        failure_rate: failure rate of links
+        time:         time epoch in which the controller is down
+                        and the links are failing randomly and
+                        independently.
+        tolerance:    the upper bound of probability, where during
+                        calculation, if the tolerance percent is exceeded,
+                        the metric will stop and return the probability
+                        with {tolerance}% as an upperbound.
+    output:
+        output file:  json output of experiment ran on evaluation
+    '''
+    #### Need to make atomic in case of operation failure
+
+    sess_file, eval_file, out_file = get_sess_eval_out_path(request)
+
+    form_json = request.get_json()
+    flows = form_json['flows']
+    links = form_json['links']
+    f_rate = form_json['failure_rate']
+    time = form_json['time']
+    tolerate = form_json['tolerance']
+
+    # create parameter dictionary
+    param = {'failure_rate':f_rate,'time':time,'tolerance':tolerate}
+
+    ## create evaluation file to be stored in 
+    makeEvals.make_Eval(sess_file,eval_file,flows,links,param,type_m="link")
+    ## from evaluation file run sherpa to generate the metric
+    sherpa.run_critf(eval_file,out_file)
+    ## return the output from the experiment
+    return send_file(out_file,as_attachment=True)
 
 @app.route('/critf_switch',methods=["POST"])
 def critf_swtich():
+
+    sess_file, eval_file, out_file = get_sess_eval_out_path(request)
+
+    form_json = request.get_json()
+    flows = form_json['flows']
+    switches = form_json['switches']
+    f_rate = form_json['failure_rate']
+    time = form_json['time']
+    tolerate = form_json['tolerance']
+
+    # create parameter dictionary
+    param = {'failure_rate':f_rate,'time':time,'tolerance':tolerate}
+
+    ## create evaluation file to be stored in 
+    makeEvals.make_Eval(sess_file,eval_file,flows,links=switches,param=param,type_m="switch")
     return ('',501)
 
 @app.route('/critf_neigh',methods=["POST"])
 def critf_neigh():
+
+    sess_file, eval_file, out_file = get_sess_eval_out_path(request)
+
+    form_json = request.get_json()
+    flows = form_json['flows']
+    switches = form_json['switches']
+    f_rate = form_json['failure_rate']
+    time = form_json['time']
+    hops = form_json['hops']
+    tolerate = form_json['tolerance']
+
+    # create parameter dictionary
+    param = {'failure_rate':f_rate,'time':time,'hops':hops,'tolerance':tolerate}
+
+    ## create evaluation file to be stored in 
+    makeEvals.make_Eval(sess_file,eval_file,flows,links=switches,param=param,type_m="neigh")
     return ('',501)
 
 

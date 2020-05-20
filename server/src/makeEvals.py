@@ -39,55 +39,6 @@ def wrapUp(outputDict, evalsDict):
             ef_str = json.dumps(outputDict, indent=4)
             ef.write(ef_str)
 
-def parseArgs(cmd_input):
-    global outputDict, evals_file
-
-    ### if cmd_input is just -cmd scriptname get the script name
-    ### This file will be openek and the (single) line found within will be 
-    ### used just as though it were typed on the command line and is passed to the command line parser
-    ###
-    cmdline = cmd_input
-    if cmd_input[0] == '-cmd':
-        try:
-            with open(cmd_input[1],'r') as cf:
-                cmd = cf.readline()
-                cmd.strip()
-                cmdline = cmd.split()
-        except:
-            print('unable to open command script file', cmd_input[1], file=sys.stderr)
-            os._exit(1)
- 
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-s', metavar='file containing topology/rules/flows session information', dest='session', required=True)
-    parser.add_argument('-o', metavar='evals description output', dest='evals', \
-            required=True)
-        
-    args = parser.parse_args(cmdline)
-
-    session_file = args.session
-    if not os.path.isfile(session_file):
-        print('Session file',session_file,'does not exist', file=sys.stderr )
-        os._exit(1)
-
-    session_dict = readFile( session_file, 'Problem reading sessions file '+session_file )
-
-    topo_file = session_dict['topo_file']
-    fullTopoDict = readFile( topo_file, 'Problem reading topology file '+topo_file )
-    topoDict = fullTopoDict['one_hop_neighbor_nodes']
-
-    rules_file = session_dict['rules_file']
-    rulesDict = readFile( rules_file, 'Problem reading rules file '+rules_file)
-
-    flows_file = session_dict['flows_file']
-    flowsDict = readFile( flows_file, 'Problem reading flows file '+flows_file)
-
-    evals_file = args.evals
-
-    outputDict['session'] = {}
-    outputDict['session'].update( session_dict )
-    outputDict['session']['session_file'] = session_file
-    return topoDict, flowsDict
-
 def readFile( fileName, errMessage ):
     try:
         with open(fileName,'r') as f:
@@ -97,20 +48,6 @@ def readFile( fileName, errMessage ):
         print(errMessage, file=sys.stderr )
         os._exit(1)
     return fdict
-
-
-def listTerms(flowsTable, linksTable):
-    print('flow names')
-    for idx in range(0,len(flowsTable)):
-        print('\t', flowsTable[idx])
-    
-    print('link names')
-    for idx in range(0,len(linksTable)):
-        print('\t', linksTable[idx])   
-
-def displayFlow( fdict ):
-    fstr = json.dumps( fdict, indent=4 ) 
-    print(fstr)
 
 def make_flowsTable( flowDict ):
     fips = sorted( flowDict )
@@ -165,169 +102,6 @@ def make_linksTable( linkDefs ):
             linkNames.pop()
 
     return linkNames, linkTable
-
-
-def makeEvals( flowDict, linkDefs ):
-    flowsTable             = make_flowsTable( list( flowDict.keys() ))
-    linkNames, linksTable  = make_linksTable( linkDefs )
-   
-    eDict = {}
-    evalNumber = 1
-
-    done = False
-    while not done:
-        ans = input('Create another evaluation? > ' )
-        if ans in ('yes','1','Yes','y','YES'):
-            oneEval = makeOneEval( flowDict, linkNames, flowsTable, linksTable )
-            eDict[evalNumber] = oneEval
-            evalNumber += 1
-        else:
-            done = True
-
-    return eDict
-
-def showFlowList( flowSet ):
-    flist = sorted(list(flowSet))
-    fstr  = 'selected flows = [' +','.join(flist)+']'
-    print( fstr, flush=True )
-
-def showLinkList( linkSet ):
-    llist = sorted(list(linkSet))
-    lstr  = 'selected links = [' +','.join(llist)+']'
-    print (lstr, flush=True )
-
-def makeOneEval( flowsDict, linkNames, flowsTable, linksTable ):
-    global topo_file, rules_file, flows_file
-
-    listTerms(flowsTable, linksTable)
-
-    doFlows = set()
-    doLinks = set()
-
-    done = False
-    print('enter \'cmds\' for list of commands')
-    while not done:
-        ans = input('> ')
-        if ans.find('cmd') > -1:
-            print('list, flow [flowname], link [linkname], display [flowname], show, remove, done')
-            continue
-
-        if ans.find('list') > -1:
-            listTerms(flowsTable, linksTable)
-            print('\n') 
-            continue
-
-        if ans.find('flow') > -1:
-            here = ans.find('flow')+len('flow')
-            flowName = ans[here+1:]
-            flowName = flowName.replace(' ','')
-            flowName = flowName.replace('[','')
-            flowName = flowName.replace(']','')
-
-            ### possible to include a comma-separated list of flows
-            flows = flowName.split(',')
-            bufferFlows = set()
-            unrecognized = set()
-
-            for flow in flows:
-                if flow in flowsDict:
-                    bufferFlows.add(flow)
-                else:
-                    unrecognized.add(flow)
-
-            if bufferFlows:
-                doFlows = doFlows.union( bufferFlows )
-
-            if unrecognized:
-                print(list(unrecognized),'not found in list of flows')
-                continue
-            
-            continue
-
-        if ans.find('display') > -1:
-            cmd,flowName = ans.split()
-            flowName = flowName.strip()
-            if not flowName in flowsDict:
-                print(flowName,'not found in list of flows')
-                continue
-            
-            fstr = json.dumps( flowsDict[flowName], indent = 4)
-            print(fstr)
-            continue
-
-        if ans.find('link') > -1:
-            here = ans.find('link')+len('link')
-            linkName = ans[here+1:]
-            linkName = linkName.replace(' ','')
-            linkName = linkName.replace('[','')
-            linkName = linkName.replace(']','')
-
-            ### possible to include a comma-separated list of links 
-            links = linkName.split(',')
-            bufferLinks = set()
-            unrecognized = set()
-
-            for link in links:
-                if link in linkNames:
-                    bufferLinks.add(link)
-                else:
-                    if link.find('-') > -1:
-                        try:
-                            end1,end2 = link.split('-')
-                            test = end2+'-'+end2
-                            if not test in linkNames:
-                                unrecognized.add(link)
-                            else:
-                                bufferLinks.add(test) 
-                        except:
-                            unrecognized.add(link)
-
-            if bufferLinks:
-                doLinks = doLinks.union( bufferLinks )
-
-            if unrecognized:
-                print(list(unrecognized),'not found in list of links')
-                continue
-            
-            continue
-
-        if ans.find('show') > -1:
-            showFlowList( doFlows )
-            showLinkList( doLinks)
-            continue
-
-        if ans.find('remove') > -1 or ans.find('rm') > -1:
-            try:
-                cmd, ans = ans.split()
-            except:
-                print('do not recognize remove argument as a link or flow name')
-                continue
- 
-            ans = ans.strip()
-            if ans in doFlows:
-                doFlows.discard( ans )
-                showFlowList( doFlows )
-
-            elif ans in doLinks:
-                doLinks.discard( ans )
-                showLinkList( doLinks )
-            else:
-                print(ans,'not found as name for either flow nor link')
-            continue 
-
-        if ans.find('done') > -1:
-            done = True
-            break
-
-        print('command', ans,'not recognized. Recognized commands are')
-        print('list, flow [flowname], link [linkname], display [flowname], done')
-    
-    flows = sorted( list(doFlows) )
-    links = sorted( list(doLinks) )
-    if not flows or not links:
-        print('no flows or no links given.  Eavluation skipped')
-        return {} 
-    return {'flows':flows, 'links':links }
 
 ### functions to run with Sherpa API
 
@@ -394,33 +168,52 @@ def switch2Link(session_path,switch):
         links_set.update(switchNodes[sn])
     return list(links_set)
 
+def findPath(flow, links, flowsDict, switchNodes):
+    visited_links = []
+    flow_desc = flowsDict[flow]
+    visited = flow_desc["visited"]
+    visit_d = len(visited)
+    cur_n = visited[0]
+    for i in range(1,visit_d):
+        nxt_n = visited[i]
+        # add flow to list
+        sw_link = switchNodes[cur_n]
+        # its either in the form cn-nn or nn-cn, make sure the visited link is in the 
+        # user selected links
+        if str(cur_n+'-'+nxt_n) in links or str(nxt_n+'-'+cur_n) in links:
+            if str(cur_n+'-'+nxt_n) in sw_link:
+                visited_links.append(str(cur_n+'-'+nxt_n))
+            else:
+                visited_links.append(str(nxt_n+'-'+cur_n))
+        cur_n = nxt_n
+
+    return visited_links
 
 
-
-def make_Eval(session_path,eval_path,flows,links):
+def make_Eval(session_path,eval_path,flows,links,param=None,type_m=None):
     '''
     This corresponds to 
     Take in user selected flows and rules
     '''
-    _,_,_,outputDict = parseSession(session_path,eval_path) 
+    topoDict, flowsDict,switchNodes ,outputDict = parseSession(session_path,eval_path) 
     #### change for later, when there are multiple evaluations
     evalDic = {}
-    evalDic[1] = {'flows':flows,'links':links}
+    if type_m == "link":
+        outputDict['parameters'] = param
+        for f in flows:
+            visited_links = findPath(f, links,flowsDict,switchNodes)
+            evalDic[f] = {'links':links,"visited":visited_links}
+    elif type_m == "switch":
+        outputDict['parameters'] = param
+        for f in flows:
+            evalDic[f] = {'switches':links,"visited":flowsDict[f]["visited"]}
+    elif type_m == "neigh":
+        # make sure "hops" is included in the parameters
+        outputDict['parameters'] = param
+        # for now it only works with a single ground zero switch
+        # or an input array links of length 1
+        for l in links:
+            evalDict[l] = {'flows':flows}
+    else:
+        evalDic[1] = {'flows':flows,'links':links}
     wrapUp(outputDict,evalDic)
-
-def main():
-
-    topoDict, flowDict = parseArgs(sys.argv[1:])
-
-    linkDefs  = mineLinkDefs( topoDict )
-
-    flowNames = list(flowDict.keys())
-
-    evalsDict = makeEvals( flowDict, linkDefs )
-
-    wrapUp(outputDict, evalsDict )
-
-if __name__ == "__main__":
-    main()
-
-
