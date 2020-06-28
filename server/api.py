@@ -302,7 +302,7 @@ def critf_link():
     return send_file(out_file,as_attachment=True)
 
 @app.route('/critf_switch',methods=["POST"])
-def critf_swtich():
+def critf_switch():
 
     sess_file, eval_file, out_file = get_sess_eval_out_path(request)
 
@@ -318,7 +318,9 @@ def critf_swtich():
 
     ## create evaluation file to be stored in 
     makeEvals.make_Eval(sess_file,eval_file,flows,links=switches,param=param,type_m="switch")
-    return ('',501)
+
+    sherpa.run_critf(eval_file,out_file,type_m="switch")
+    return send_file(out_file,as_attachment=True)
 
 @app.route('/critf_neigh',methods=["POST"])
 def critf_neigh():
@@ -326,7 +328,7 @@ def critf_neigh():
     sess_file, eval_file, out_file = get_sess_eval_out_path(request)
 
     form_json = request.get_json()
-    flows = form_json['flows']
+    #flows = form_json['flows']
     switches = form_json['switches']
     f_rate = form_json['failure_rate']
     time = form_json['time']
@@ -337,8 +339,10 @@ def critf_neigh():
     param = {'failure_rate':f_rate,'time':time,'hops':hops,'tolerance':tolerate}
 
     ## create evaluation file to be stored in 
-    makeEvals.make_Eval(sess_file,eval_file,flows,links=switches,param=param,type_m="neigh")
-    return ('',501)
+    makeEvals.make_Eval(sess_file,eval_file,flows=None,links=switches,param=param,type_m="neigh")
+    ## from evaluation file, run sherpa neighborhood
+    sherpa.run_critf(eval_file,out_file,type_m="neigh")
+    return send_file(out_file,as_attachment=True)
 
 
 @app.route('/evals',methods=["GET"])

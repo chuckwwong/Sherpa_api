@@ -25,10 +25,10 @@ import json
 import copy
 import math
 
+from .                import sherpa_exp
 from collections      import defaultdict
 from itertools        import combinations
 from .utils.network   import buildNetwork
-from .utils.flow      import Flow
 from .utils.ipn       import IPValues, inIPFormat
 from .utils.rule      import RuleNewlySeen, MatchNewlySeen, ActionNewlySeen 
 from .utils.linkstate import buildLinkState, saveLinkState
@@ -162,7 +162,7 @@ def validateFlows( switches, flowIds, linkState, neighborMap ):
     ###
     valExpDict = {'links':[],'flows': flowIds }
 
-    failedToRoute = runSingleEvaluation( valExpDict, switches, linkState, neighborMap )
+    failedToRoute = sherpa_exp.runSingleEvaluation( valExpDict, switches, linkState, neighborMap )
 
 
     if failedToRoute:
@@ -188,125 +188,27 @@ def makeNeighborMap(switches):
             
     return neighborMap
 
-### given a description of the flows to test, the links to fail, the network topology (with rules)
-### run an evaluation to see which flows do not complete
-###
-def runSingleEvaluation( evalDict, switches, linkState, neighborMap ):
-
-    ### reset the linkState structure to have only the links to fail in the failed state
-
-    for linkName in linkState:
-
-        ### a link name being in evalDict['links'] means it is one being failed
-        if linkName in evalDict['links']:
-            linkState[ linkName ] = False
-        else:
-            ### otherwise it is up
-            linkState[ linkName ] = True
-
-    ### push a pointer to the linkState structure down to each switch for reference during routing
-    for switchName, switch in switches.items():
-        switch.saveLinkState( linkState )
-
-    ### initialize the set of flows that route despite the failures
-    routed = set()
-    
-    ### see impact of failed links on the specified flows
-    ###
-    for flowName in evalDict['flows']:
-
-        fdict = flowsDict[ flowName ] 
-
-        fdict['ttl'] = 24
-
-        ### the Flow structure copies all the attributes of a flow in the flowsDict
-        ### into a 'vars' dictionary in the flow, so references to attributes in the
-        ### actual flow being pushed around is through .vars
-        ###
-        flow     = Flow(flowName, fdict)
-        flow.vars['nw_ttl'] = 24
-
-        ### build the first entry point in the path exploration
-        src      = fdict['nsrc']
-        in_port  = fdict['ingress_port']
-
-        ### to_route will be a stack describing the routing attempts still to be made
-        switch = switches[ src ]
-        to_route = [ (src, in_port, flow) ]
-
-        while len(to_route) > 0:
-            (to_switch, to_port, route_flow) = to_route.pop()
-
-            switch = switches[ to_switch ]
-            
-            ### see if the flow arrives at destination
-            if switch.atDestination( route_flow ):
-                failed = False
-                break
-
-            ### try to route flow through to_switch using ingress port to_port
-            nxt_hop = switch.route( to_port, route_flow )
-
-            ### if nxt_hop is empty the routing failed    
-            if not nxt_hop:
-                failed = True
-                break
-
-            ### nxt_hop is list where each element has form (nxt_flow, portId )
-            for (nxt_flow, nxt_port ) in nxt_hop:
-
-                ### nxt_port may not lead to a switch within the network. We can route only those that do
-                if nxt_port in switch.nbrs:
-                    (nbrSwitchId, nbrPortId) = neighborMap[ to_switch ][nxt_port]
-                    to_route.append( (nbrSwitchId, nbrPortId, nxt_flow) )             
-
-        ### save the identities of flows that _did_ get routed.  This because there is multi-cast, perhaps
-        ### for redundency, and if any of them gets through it is a save
-        ###
-        if not failed:
-            routed.add( flowName )
-
-    ### return list of flows impacted by the set of link failures
-
-    allFlows = set( evalDict['flows'] )
-    return sorted( list( allFlows.difference( routed ) ))
-
-### run each evaluation.  Simple enough, pull off the evaluation description from
-### evalsDict and call runSingleEvaluation on it
-###
-def runEvaluations( evalsDict, switches, linkState, neighborMap ):
-
-    ### results array will be a copy of the incoming evalsDict, with an attribute added that
-    ### describes the links which failed, for each evaluation
-    ###
-    results = {}
-    for evalId, evalDict in evalsDict['evaluations'].items():
-        ### get list of flows that do not survive the link failures
-        failed = runSingleEvaluation( evalDict, switches, linkState, neighborMap )
-
-        ### create the results entry for this evaluation 
-        results[ evalId ] = {}
-        results[ evalId ].update( evalDict )
-        results[ evalId ]['failed'] = failed 
-
-    ### we're done
-    return results
-
 def findFlowsToTest( evalDict, type_m = None ):
     ff2test = set()
-    if type_m == "link":
+    if type_m == "link" or type_m == "switch":
         for fName, fDict in evalDict['evaluations'].items():
             if fName not in flowsDict:
                 print('evaluation names flow',fName,'which is not found in the flows file', file=sys.stderr )
 
             ff2test.add( fName )
     elif type_m == "neigh":
+        flows = flowsDict.keys()
+        for fId in flows:
+            ff2test.add(fId)
+        '''
+        ### in the case where we want to specify select flows impacted by a neigborhood of switch failures
         for sName, sDict in evalDict['evaluations'].items():
             for fId in sDict['flows']:
                 if fId not in flowsDict:
                     print('evaluation ',sName,' names flow',fId,'which is not found in the flows file', file=sys.stderr )
 
                 ff2test.add( sName )
+        '''
     else:
         for evalNum, eDict in evalDict['evaluations'].items():
             for fId in eDict['flows']:
@@ -324,32 +226,31 @@ def sherpa(eval_path,out_path):
     ### the resultsDict just adds to each entry in the evalsDict a new attribute 'failed' which maps to a list
     ### of flow identifiers from the original list that do not survive the link failures
     ###
-    resultsDict = runEvaluations( evalsDict, switches, linkState, neighborMap )
+    resultsDict = sherpa_exp.runEvaluations( evalsDict, switches, linkState, neighborMap )
 
+    ### overwrite the 'evaluations' part of evalsDict with the results
+    ###
     evalsDict['evaluations'] = resultsDict
-    if output_file:     
-
-        ### overwrite the 'evaluations' part of evalsDict with the results
-        ###
-
-        ### write back the modified evaluations file
-        ###
-        with open(output_file,'w') as of:
-            estr = json.dumps( evalsDict, indent=4 )
-            of.write(estr)
+    
+    ### write back the modified evaluations file
+    ###
+    with open(output_file,'w') as of:
+        estr = json.dumps( evalsDict, indent=4 )
+        of.write(estr)
 
     return evalsDict 
 
-def critical_flow_links(eval_path,out_path):
+def critical_flow(eval_path,out_path,type_m):
     ## set up the network
-    evalsDict, switches, linkState, neighborMap = build_network(eval_path,out_path,type_m="link")
+    evalsDict, switches, linkState, neighborMap = build_network(eval_path,out_path,type_m)
 
     results = {}
     ## generate evals from evalDict to run on sherpa
-    evaluations = make_eval_link(evalsDict)
+    evaluations = sherpa_exp.make_eval_link(evalsDict,type_m)
+    print(evaluations)
     ## generate probabilities and run experiment
     for flowName, combinations in evaluations.items():
-        probability, bound = calculate_metric(flowName,combinations,evalsDict,switches,linkState,neighborMap)
+        probability, bound = sherpa_exp.calculate_metric([flowName],combinations,evalsDict,switches,linkState,neighborMap)
         #print(probability,bound)
         ## compile it all together
         if bound != None:
@@ -359,107 +260,51 @@ def critical_flow_links(eval_path,out_path):
         results[flowName] = {}
         results[flowName].update( evalsDict['evaluations'][flowName])
         results[flowName]['result'] = result
-    
+
+    ### overwrite the 'evaluations' part of evalsDict with the results
+    ###
     evalsDict['evaluations'] = results
-    if output_file:     
 
-        ### overwrite the 'evaluations' part of evalsDict with the results
-        ###
+    ### write back the modified evaluations file
+    ###
+    with open(output_file,'w') as of:
+        estr = json.dumps( evalsDict, indent=4 )
+        of.write(estr)
 
-        ### write back the modified evaluations file
-        ###
-        with open(output_file,'w') as of:
-            estr = json.dumps( evalsDict, indent=4 )
-            of.write(estr)
+    return evalsDict
 
-# lambda function to calculate combination
-nCr = lambda n,r: math.factorial(n)/(math.factorial(n-r)*math.factorial(r))
+def critical_flow_neigh(eval_path,out_path):
+    ## set up the network
+    evalsDict, switches, linkState, neighborMap = build_network(eval_path,out_path,"neigh")
 
-def calculate_metric(flow,evals, evalsDict, switches, linkState, neighborMap):
-    '''
+    results = {}
+    # generate evals from evalDict to run on sherpa
+    evaluations = sherpa_exp.make_eval_neigh(evalsDict)
+    #print(evaluations)
+    ## generate probabilities and run experiment
+    for switch, dict_fl in evaluations.items():
+        probability, bound = sherpa_exp.calculate_metric(dict_fl['flows'],[dict_fl['links']],evalsDict,switches,linkState,neighborMap)
 
-    '''
-    probability_t = 0
-    probability_e = 0
-    params = evalsDict["parameters"]
-    tolerance = float(params["tolerance"])
-    f_r = float(params["failure_rate"])
-    time = int(params["time"])
-
-    L = len(evals)
-
-    for i, link_c in enumerate(evals):
-        # calculate probability f fails given i+1 links fail in time T
-        p_m = 0
-        for comb in link_c:
-            eDict = {"flows":[flow],"links":comb}
-            fail = runSingleEvaluation(eDict,switches,linkState,neighborMap)
-            p_m += len(fail)
-        p_m = p_m/nCr(L,i+1)
-
-        # calculate probability that i links fail in time T with Poisson distribution
-        # not sure if I should include Time
-        p_x = (f_r*time)**(i+1) * math.exp(-f_r*time)/math.factorial(i+1)
-
-        probability_e += p_x
-        #print("p_e",(1-probability_e),"p_t",(tolerance*(probability_t+p_m*p_x)))
-        if (1- probability_e) < tolerance * (probability_t + p_m*p_x):
-            bound = i+1
-            return probability_t, bound
+        if bound != None:
+            result = {'probability':probability,"uppper bound":bound}
         else:
-            probability_t += p_m*p_x
+            result = {'probability':probability}
+        results[switch] = {'result': result}
 
-    return probability_t, None
+    ### overwrite the 'evaluations' part of evalsDict with the results
+    ###
+    evalsDict['evaluations'] = results
 
-def make_eval_neigh(evalsDict,hops=0):
-    pass
+    ### write back the modified evaluations file
+    ###
+    with open(output_file,'w') as of:
+        estr = json.dumps( evalsDict, indent=4 )
+        of.write(estr)
 
-def make_eval_switch(evalsDict):
-    pass
+    return evalsDict
 
-def make_eval_link(evalsDict):
-    '''
-    This takes in the evaluation dictionary and finds all unique
-    combinations of links from sets of 1 to sets of number of total links selected
-    and each set has at least one link that the flow goes through
 
-    The output flow_evals is a dictionary that maps the user selected flow to 
-    a list of evaluations, each element in the list is a list of combination of links
-    all with the length index of the evaluation.
-    '''
-    # uses global variables flowDict and switchDict
-    flow_evals = {}
-    for flowName, evalDict in evalsDict['evaluations'].items():
-        evaluations = []
-        visited = evalDict["visited"]
-        # if the links that will be failing don't include links that the flow uses
-        # there's no point in running evaluation
-        if not visited:
-            # evaluations corresponding to this flow is empty, signifying 0 probability of failing
-            continue
-        else:
-            links = evalDict["links"]
-            for i in range(1,len(links)+1):
-                # link_comb is list of all unique combinations of flows of length i
-                link_comb = []
-                links_s = set(links)
-                # find all combinations of unique link pairs with at least one visited link
-                for v in visited:
-                    # take out the node from visited
-                    links_s.remove(v)
-                    # out of L-h Choose i - 1, for h in V, i-1, since v will be added in
-                    unique = combinations(links_s,i-1)
-                    for lu in list(unique):
-                        combin = list(lu)
-                        # add in the visited link back into the unique combination
-                        combin.append(v)
-                        # here is where the switches are converted to links (not in this function)
-                        link_comb.append(combin)
-                evaluations.append(link_comb)
-        flow_evals[flowName] = evaluations
-    return flow_evals
-
-### functions to run with Sherpa api
+### functions to initialize the Sherpa api
 def build_network(eval_path,out_path,type_m=None):
     global topo_file, rules_file, flows_file, ip_file, evals_file, switch_file
     global flowsDict, switchDict
@@ -599,7 +444,6 @@ def parseArgs_exp(eval_path,out_path):
         switch_file = sessionDict['switch_file']
 
 ### backend calls these functions to run experiments
-
 def run_exp(eval_path,out_path):
     '''
     Run SDN flow evaluation given eval json
@@ -608,9 +452,11 @@ def run_exp(eval_path,out_path):
     # then run sherpa function
     sherpa(eval_path,out_path)
 
-def run_critf(eval_path,out_path,type="link"):
+def run_critf(eval_path,out_path,type_m="link"):
     '''
     Run evaluation for case 1, modified case 1, and modified case 3
     '''
-    critical_flow_links(eval_path,out_path) 
-        
+    if type_m == "neigh":
+        critical_flow_neigh(eval_path,out_path) 
+    else:
+        critical_flow(eval_path,out_path,type_m)

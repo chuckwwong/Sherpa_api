@@ -211,6 +211,11 @@ def make_switchDict( switches, linkDefs):
         switchDict[n1].append(link)
         switchDict[n2].append(link)
 
+    for sw in switches.keys():
+        # for disconnected switches that have no neighbors, will have an empty list
+        if sw not in switchDict:
+            switchDict[sw] = []
+
     print(switchDict)
     return switchDict
 
