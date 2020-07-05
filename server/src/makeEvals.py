@@ -210,9 +210,6 @@ def make_Eval(session_path,eval_path,flows,links,param=None,type_m=None):
     elif type_m == "neigh":
         # make sure "hops" is included in the parameters
         outputDict['parameters'] = param
-
-        # for now it only works with a single ground zero switch
-        # or an input array links of length 1
         evalDic['switches'] = links
     else:
         evalDic[1] = {'flows':flows,'links':links}

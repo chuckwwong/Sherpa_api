@@ -1,7 +1,8 @@
 import React, {Component} from 'react';
 import {withRouter} from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
-import {OverlayTrigger, Tooltip} from 'react-bootstrap';
+
+import ItemTracker from './ItemTracker';
 
 class SwitchMetric extends Component {
   constructor(props){
@@ -9,10 +10,8 @@ class SwitchMetric extends Component {
     this.state = {
       eval_name: '',
       flows: {},
-      flows_s: [],
       flows_ch: {},
       switches: {},
-      switches_s: [],
       switches_ch: {},
       output_f: undefined
     };
@@ -44,32 +43,6 @@ class SwitchMetric extends Component {
     });
   }
 
-    listFlows = () => {
-    const {flows} = this.state;
-    return Object.entries(flows).map(([key, value]) =>
-      <div> 
-        <label key={key}>
-          <input
-            type="checkbox"
-            checked={!!this.state.flows_ch[key]}
-            onChange={event => this.handleFlowCheck(key, event)}
-          />
-          {key}
-          <OverlayTrigger
-            placement="top"
-            overlay={
-              <Tooltip>
-                {this.dispTooltip(value)}
-              </Tooltip>
-            }
-          >
-            <Button variant="secondary">?</Button>
-          </OverlayTrigger>
-        </label>
-      </div>
-    );
-  }
-
   handleFlowCheck = (key,event) => {
     const {flows_ch} = this.state;
     flows_ch[key] = event.target.checked;
@@ -78,52 +51,12 @@ class SwitchMetric extends Component {
     });
   }
 
-  dispTooltip = (value) => {
-    return (
-      <div>
-        <div>
-        nw_dst:
-        {value.nw_dst}
-        </div>
-        <div>
-        Ingress Port:
-        {value.ingress_port}
-        </div>
-        <div>
-          Visited:
-          {value.visited.map((item,index) =>(
-            <div key={index}>
-              {item}
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
   handleSwitchCheck = (key,event) => {
     const {switches_ch} = this.state;
     switches_ch[key] = event.target.checked;
     this.setState({
       switches_ch
     })
-  }
-
-
-  listSwitches = () => {
-    const {switches} = this.state;
-    return Object.entries(switches).map(([key,value]) =>
-      <div>
-        <label>
-          <input
-            type="checkbox"
-            checked={!!this.state.switches_ch[key]}
-            onChange={event => this.handleSwitchCheck(key, event)}
-          />
-          {key}
-        </label>
-      </div>
-    );
   }
 
   runSwitch = () => {
@@ -180,10 +113,22 @@ class SwitchMetric extends Component {
           and see which flows are impacted.
         </p>
         {/*List all flows switches in network here */}
-        Flows:
-        {this.listFlows()}
-        Switches:
-        {this.listSwitches()}
+        <ItemTracker
+            name={"Flows"}
+            items={this.state.flows}
+            items_ch={this.state.flows_ch}
+            itemType={"flow"}
+            listType={"checkbox"}
+            handleItemCheck={this.handleFlowCheck}
+        />
+        <ItemTracker
+            name={"Switches"}
+            items={this.state.switches}
+            items_ch={this.state.switches_ch}
+            itemType={"switch"}
+            listType={"checkbox"}
+            handleItemCheck={this.handleSwitchCheck}
+        />
       </div>
     );
   }

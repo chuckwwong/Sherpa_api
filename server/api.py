@@ -240,7 +240,7 @@ def run_switch():
 
     sess_file, eval_file, out_file = get_sess_eval_out_path(request)
 
-    # get selected flows and links array
+    # get selected flows and switch array
     form_json = request.get_json()
     flows = form_json['flows']
     switches = form_json['switches']

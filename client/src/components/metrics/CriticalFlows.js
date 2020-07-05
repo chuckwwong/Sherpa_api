@@ -8,7 +8,7 @@ class CriticalFlows extends Component {
     this.state = {
       eval_name: '',
       flows: {},
-      flows_s: [],
+      links:[],
       lambda: 1,
       link_f: true,
       switch_f: false,

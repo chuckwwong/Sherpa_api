@@ -1,7 +1,8 @@
 import React, {Component} from 'react';
 import {withRouter} from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
-import {OverlayTrigger, Tooltip} from 'react-bootstrap';
+
+import ItemTracker from './ItemTracker';
 
 class CustomSherpa extends Component {
   constructor(props){
@@ -10,16 +11,13 @@ class CustomSherpa extends Component {
       eval_name: '',
       flows: {},
       links: [],
-      flows_s: [],
-      links_s: [],
       flows_ch: {},
       links_ch: {},
       output_f: undefined
     };
 
-    this.listLinks = this.listLinks.bind(this);
-    this.listFlows = this.listFlows.bind(this);
     this.handleFlowCheck = this.handleFlowCheck.bind(this);
+    this.handleLinksCheck = this.handleLinksCheck.bind(this);
   }
 
   componentDidMount() {
@@ -48,51 +46,12 @@ class CustomSherpa extends Component {
   }
 
   handleLinksCheck(item,event) {
+    console.log(this.state);
     const {links_ch} = this.state;
     links_ch[item] = event.target.checked;
     this.setState({
       links_ch
     });
-  }
-
-  listLinks() {
-    return (
-      <div>
-        {this.state.links.map((item,index) => (
-          <label key={item}>
-            <input
-              type="checkbox"
-              checked={!!this.state.links_ch[item]}
-              onChange={event => this.handleLinksCheck(item,event)}
-            />
-            {item}
-          </label>
-        ))}
-      </div>
-    );
-  }
-
-  dispTooltip(value) {
-    return (
-      <div>
-        <div>
-        nw_dst:
-        {value.nw_dst}
-        </div>
-        <div>
-        Ingress Port:
-        {value.ingress_port}
-        </div>
-        <div>
-          Visited:
-          {value.visited.map((item,index) =>(
-            <div key={index}>
-              {item}
-            </div>
-          ))}
-        </div>
-      </div>
-    );
   }
 
   handleFlowCheck(key,event) {
@@ -101,32 +60,6 @@ class CustomSherpa extends Component {
     this.setState({
       flows_ch
     });
-  }
-
-  listFlows() {
-    const {flows} = this.state;
-    return Object.entries(flows).map(([key, value]) =>
-      <div> 
-        <label>
-          <input
-            type="checkbox"
-            checked={!!this.state.flows_ch[key]}
-            onChange={event => this.handleFlowCheck(key, event)}
-          />
-          {key}
-          <OverlayTrigger
-            placement="top"
-            overlay={
-              <Tooltip>
-                {this.dispTooltip(value)}
-              </Tooltip>
-            }
-          >
-            <Button variant="secondary">?</Button>
-          </OverlayTrigger>
-        </label>
-      </div>
-    );
   }
 
   runExp = () => {
@@ -185,10 +118,22 @@ class CustomSherpa extends Component {
             </label>
           </form>
           {/*Display list of all flows and links*/}
-          Flows:
-          {this.listFlows()}
-          Links:
-          {this.listLinks()}
+          <ItemTracker
+            name={"Flows"}
+            items={this.state.flows}
+            items_ch={this.state.flows_ch}
+            itemType={"flow"}
+            listType={"checkbox"}
+            handleItemCheck={this.handleFlowCheck}
+          />
+          <ItemTracker
+            name={"Links"}
+            items={this.state.links}
+            items_ch={this.state.links_ch}
+            itemType={"links"}
+            listType={"checkbox"}
+            handleItemCheck={this.handleLinksCheck}
+          />
         </div>
         <Button onClick={this.runExp}>Run</Button>
       </div>
