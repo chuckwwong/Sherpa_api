@@ -169,10 +169,10 @@ def calculate_metric(flows,evals, evalsDict, switches, linkState, neighborMap):
 
         # calculate probability that i links fail in time T with Poisson distribution
         # not sure if I should include Time
-        p_x = (f_r*time)**(i+1) * math.exp(-f_r*time)/math.factorial(i+1)
+        p_x = (f_r*L)**(i+1) * math.exp(-f_r*L)/math.factorial(i+1)
 
         probability_e += p_x
-        #print("p_e",(1-probability_e),"p_t",(tolerance*(probability_t+p_m*p_x)))
+        print(i+1,"p_e",(1-probability_e),"p_t",(tolerance*(probability_t+p_m*p_x)))
         if (1- probability_e) < tolerance * (probability_t + p_m*p_x):
             bound = i+1
             return probability_t, bound
@@ -227,7 +227,7 @@ def switchToLinks(switches):
         links.update(sherpa.switchDict[s])
     return list(links)
 
-def make_eval_neigh(evalsDict,hops=0):
+def make_eval_neigh(evalsDict):
     # get all flows as a list
     flows = list(sherpa.flowsDict.keys())
     

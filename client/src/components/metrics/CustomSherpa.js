@@ -46,7 +46,6 @@ class CustomSherpa extends Component {
   }
 
   handleLinksCheck(item,event) {
-    console.log(this.state);
     const {links_ch} = this.state;
     links_ch[item] = event.target.checked;
     this.setState({

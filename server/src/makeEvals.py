@@ -196,7 +196,6 @@ def make_Eval(session_path,eval_path,flows,links,param=None,type_m=None):
     Take in user selected flows and rules
     '''
     topoDict, flowsDict,switchNodes ,outputDict = parseSession(session_path,eval_path) 
-    #### change for later, when there are multiple evaluations
     evalDic = {}
     if type_m == "link":
         outputDict['parameters'] = param

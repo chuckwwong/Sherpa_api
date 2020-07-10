@@ -79,6 +79,9 @@ class ListSelect extends Component {
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
+          <p>
+            Under Construction
+          </p>
           {/* Function to list out all sessions, and let user select one*/}
           {this.listSessions()}
         </Modal.Body>

@@ -4,6 +4,8 @@ import Button from 'react-bootstrap/Button';
 
 import SwitchMetric from './metrics/SwitchMetric';
 import CriticalFlows from './metrics/CriticalFlows';
+import CritSwitchMetric from './metrics/criticalFlows/CritSwitchMetric';
+import CritNeighMetric from './metrics/criticalFlows/CritNeighMetric';
 import CustomSherpa from './metrics/CustomSherpa';
 import OtherMetrics from './metrics/OtherMetrics';
 
@@ -47,13 +49,17 @@ class Session extends Component {
         <h2>Session: {match.params.session_name}</h2>
         <div>
           <div>
-            <NavLink to={`${match.url}`}>Critical Flows</NavLink>
+            <NavLink to={`${match.url}`}>Critical Links</NavLink>
+            <NavLink to={`${match.url}/crit_switch`}>Critical Switches</NavLink> 
+            <NavLink to={`${match.url}/crit_neigh`}>Critical Neigh</NavLink>
             <NavLink to={`${match.url}/switch`}>Switch Impact</NavLink>
             <NavLink to={`${match.url}/sherpa`}>Custom SHERPA</NavLink>
             <NavLink to={`${match.url}/others`}>Other Metrics</NavLink>
           </div>
           <Switch>
             <Route path={`${match.path}`} component={CriticalFlows} exact/>
+            <Route path={`${match.path}/crit_switch`} component={CritSwitchMetric}/>
+            <Route path={`${match.path}/crit_neigh`} component={CritNeighMetric}/>
             <Route path={`${match.path}/switch`} component={SwitchMetric}/>
             <Route path={`${match.path}/sherpa`} component={CustomSherpa}/>
             <Route path={`${match.path}/others`} component={OtherMetrics}/>

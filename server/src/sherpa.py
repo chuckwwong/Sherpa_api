@@ -247,7 +247,7 @@ def critical_flow(eval_path,out_path,type_m):
     results = {}
     ## generate evals from evalDict to run on sherpa
     evaluations = sherpa_exp.make_eval_link(evalsDict,type_m)
-    print(evaluations)
+    #print(evaluations)
     ## generate probabilities and run experiment
     for flowName, combinations in evaluations.items():
         probability, bound = sherpa_exp.calculate_metric([flowName],combinations,evalsDict,switches,linkState,neighborMap)

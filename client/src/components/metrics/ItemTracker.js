@@ -14,21 +14,6 @@ import {OverlayTrigger, Tooltip} from 'react-bootstrap';
     - handleItemCheck: function passed from parent to keep track of selected items
 */
 class ItemTracker extends Component {
-    constructor(props){
-        super(props);
-
-        /*this.state = {
-            items: {},
-            output_item: {}
-        }*/
-    }
-
-    componentDidMount() {
-        /*const {items} = this.props;
-        this.setState({
-          items
-        });*/
-    }
 
     listItems = () => {
       if (this.props.itemType === "links") {
@@ -50,38 +35,43 @@ class ItemTracker extends Component {
         // listing out object types
         return Object.entries(this.props.items).map(([key,value]) => 
           <div>
-            <label>
+            <label key={key}>
               <input
                 type={this.props.listType}
                 checked={!!this.props.items_ch[key]}
                 onChange={event => this.props.handleItemCheck(key,event)}
               />
               {key}
-              {
-                <OverlayTrigger
-                  placement="top"
-                  overlay={
-                    <Tooltip>
-                      {this.dispTooltip(value)}
-                    </Tooltip>
-                  }
-                >
-                  <Button variant="secondary">?</Button>
-                </OverlayTrigger>
+              <OverlayTrigger
+                placement="top"
+                overlay={
+                  <Tooltip>
+                    {this.dispTooltip(value)}
+                  </Tooltip>
+                }
+              >
+                <Button variant="secondary">?</Button>
+              </OverlayTrigger>
+              {/*
+                this.props.itemType === "neigh" &&
+                <>Hops:</>
               }
+              {
+                this.props.itemType=== "neigh" &&
+                <input
+                  type="number"
+                  disabled={!this.props.items_ch[key]}
+                  min={0}
+                  //max={this.props.flows}
+                  value={this.props.hops[key]}
+                  onChange={this.handleHopsCheck}
+                />
+              */}
             </label>
           </div>
          );
       }
     }
-
-    /*handleItemCheck = (key,event) => {
-      const {items_ch} = this.state;
-      items_ch[key] = event.target.checked;
-      this.setState({
-        items_ch
-      })
-    }*/
 
     dispTooltip = (value) => {
       if (this.props.itemType === "flow") {
@@ -105,7 +95,7 @@ class ItemTracker extends Component {
             </div>
           </div>
         );
-      } else if (this.props.itemType === "switch") {
+      } else if (this.props.itemType === "switch" || this.props.itemType === "neigh") {
         return (
           <div>
             Neighbor:
@@ -120,7 +110,6 @@ class ItemTracker extends Component {
     }
 
     render() {
-        //let {itemType,listType} = this.props;
         return(
           <div>
             {this.props.name}:

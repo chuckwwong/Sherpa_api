@@ -2,27 +2,36 @@ import React, {Component} from 'react';
 import {withRouter} from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
 
-import ItemTracker from './ItemTracker';
+import ItemTracker from './../ItemTracker';
 
-class CriticalFlows extends Component {
+/*
+  props:
+    - flows: flows in current topology
+    - links: links of current topology
+    - eval_name: not sure if this should be passed in
+    - lambda: failure rate
+    - time: number of time epochs
+    - tolerance: tolerance for estimating failure rate
+*/
+class CritSwitchMetric extends Component {
   constructor(props){
     super(props);
+
     this.state = {
       eval_name: '',
       flows: {},
-      links:[],
       flows_ch: {},
-      links_ch: {},
+      switches: {},
+      switches_ch: {},
       lambda: 0,
       time: 1,
       tolerance: 0,
       output_f: undefined
-    };
-
+    }
   }
 
   componentDidMount() {
-    console.log("Critical Flow", this.props);
+    console.log("Critical Switch", this.props);
     let {session_name} = this.props.match.params;
     // call fetch
     fetch(`http://localhost:5000/load?session_name=${session_name}`)
@@ -33,7 +42,7 @@ class CriticalFlows extends Component {
         this.setState({
           success: data.success,
           flows: data.flows,
-          links: data.links
+          switches: data.switches
         });
       }
     }).catch(error => console.log('error', error));
@@ -47,11 +56,11 @@ class CriticalFlows extends Component {
     });
   }
 
-  handleLinksCheck = (item,event) => {
-    const {links_ch} = this.state;
-    links_ch[item] = event.target.checked;
+  handleSwitchCheck = (item,event) => {
+    const {switches_ch} = this.state;
+    switches_ch[item] = event.target.checked;
     this.setState({
-      links_ch
+      switches_ch
     });
   }
 
@@ -71,7 +80,7 @@ class CriticalFlows extends Component {
     });
   }
 
-  runLink = () => {
+  runSwitch = () => {
     let myHeaders = new Headers();
     myHeaders.append("Content-Type","application/json")
 
@@ -80,7 +89,7 @@ class CriticalFlows extends Component {
     ).map(([key,value]) =>
       key
     );
-    let links = Object.entries(this.state.links_ch).filter(([key,value]) =>
+    let switches = Object.entries(this.state.switches_ch).filter(([key,value]) =>
       value
     ).map(([key,value]) =>
       key
@@ -88,7 +97,7 @@ class CriticalFlows extends Component {
     // Create the body of the request
     let json = JSON.stringify({
       flows,
-      links,
+      switches,
       "failure_rate": this.state.lambda,
       "time": this.state.time,
       "tolerance": this.state.tolerance
@@ -101,7 +110,7 @@ class CriticalFlows extends Component {
       redirect: 'follow'
     };
     let {session_name} = this.props.match.params;
-    fetch(`http://localhost:5000/critf_link?session_name=${session_name}&eval_name=${this.props.eval_name}`,requestOptions)
+    fetch(`http://localhost:5000/critf_switch?session_name=${session_name}&eval_name=${this.props.eval_name}`,requestOptions)
     .then(rsp => rsp.blob())
     .then(blob => {
       let a = document.createElement("a");
@@ -122,7 +131,7 @@ class CriticalFlows extends Component {
         </p>
         <h4>Impact of Link Failure</h4>
         <p>
-          Select a set of links to fail, and see their impact on a specific flow.
+          Select a set of switches to fail, and see their impact on a specific flow
           Further explanation:
         </p>
         {/* Evaluation Name goes here*/}
@@ -144,7 +153,6 @@ class CriticalFlows extends Component {
               name="lambda"
               max={1}
               min={0}
-              required={true}
               value={this.state.lambda}
               onChange={this.handleFormChange}
             />
@@ -173,29 +181,27 @@ class CriticalFlows extends Component {
             />
           </label>
         </form>
-        <div>
-          {/* Display list of all flows and links*/}
-          <ItemTracker
-            name={"Flows"}
-            items={this.state.flows}
-            items_ch={this.state.flows_ch}
-            itemType={"flow"}
-            listType={"checkbox"}
-            handleItemCheck={this.handleFlowCheck}
-          />
-          <ItemTracker
-            name={"Links"}
-            items={this.state.links}
-            items_ch={this.state.links_ch}
-            itemType={"links"}
-            listType={"checkbox"}
-            handleItemCheck={this.handleLinksCheck}
-          />
-          <Button onClick={this.runLink}>Run</Button>
-        </div>
+        {/* Display list of all flows and links*/}
+        <ItemTracker
+          name={"Flows"}
+          items={this.state.flows}
+          items_ch={this.state.flows_ch}
+          itemType={"flow"}
+          listType={"checkbox"}
+          handleItemCheck={this.handleFlowCheck}
+        />
+        <ItemTracker
+          name={"Switches"}
+          items={this.state.switches}
+          items_ch={this.state.switches_ch}
+          itemType={"switch"}
+          listType={"checkbox"}
+          handleItemCheck={this.handleSwitchCheck}
+        />
+        <Button onClick={this.runSwitch}>Run</Button>
       </div>
     );
   }
 }
 
-export default withRouter(CriticalFlows);
+export default withRouter(CritSwitchMetric);

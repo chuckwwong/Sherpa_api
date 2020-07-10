@@ -2,27 +2,36 @@ import React, {Component} from 'react';
 import {withRouter} from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
 
-import ItemTracker from './ItemTracker';
+import ItemTracker from './../ItemTracker';
 
-class CriticalFlows extends Component {
+/*
+  props:
+    - flows: flows in current topology
+    - links: links of current topology
+    - eval_name: not sure if this should be passed in
+    - lambda: failure rate
+    - time: number of time epochs
+    - tolerance: tolerance for estimating failure rate
+*/
+class CritNeighMetric extends Component {
   constructor(props){
     super(props);
+
     this.state = {
       eval_name: '',
       flows: {},
-      links:[],
-      flows_ch: {},
-      links_ch: {},
+      switches: {},
+      switches_ch: {},
+      hops: 0,
       lambda: 0,
       time: 1,
       tolerance: 0,
       output_f: undefined
-    };
-
+    }
   }
 
   componentDidMount() {
-    console.log("Critical Flow", this.props);
+    console.log("Critical Neigh", this.props);
     let {session_name} = this.props.match.params;
     // call fetch
     fetch(`http://localhost:5000/load?session_name=${session_name}`)
@@ -33,25 +42,17 @@ class CriticalFlows extends Component {
         this.setState({
           success: data.success,
           flows: data.flows,
-          links: data.links
+          switches: data.switches
         });
       }
     }).catch(error => console.log('error', error));
   }
 
-  handleFlowCheck = (key,event) => {
-    const {flows_ch} = this.state;
-    flows_ch[key] = event.target.checked;
+  handleSwitchCheck = (item,event) => {
+    const {switches_ch} = this.state;
+    switches_ch[item] = event.target.checked;
     this.setState({
-      flows_ch
-    });
-  }
-
-  handleLinksCheck = (item,event) => {
-    const {links_ch} = this.state;
-    links_ch[item] = event.target.checked;
-    this.setState({
-      links_ch
+      switches_ch
     });
   }
 
@@ -59,7 +60,7 @@ class CriticalFlows extends Component {
     const target = event.target;
     let value;
     //console.log(target.value);
-    if (target.name === "time"){
+    if (target.name === "time" || target.name === "hops"){
       value = parseInt(target.value);
     } else if (target.name === "lambda" || target.name === "tolerance") {
       value = parseFloat(target.value);
@@ -71,27 +72,22 @@ class CriticalFlows extends Component {
     });
   }
 
-  runLink = () => {
+  runSwitch = () => {
     let myHeaders = new Headers();
     myHeaders.append("Content-Type","application/json")
 
-    let flows = Object.entries(this.state.flows_ch).filter(([key,value]) =>
-      value
-    ).map(([key,value]) =>
-      key
-    );
-    let links = Object.entries(this.state.links_ch).filter(([key,value]) =>
+    let switches = Object.entries(this.state.switches_ch).filter(([key,value]) =>
       value
     ).map(([key,value]) =>
       key
     );
     // Create the body of the request
     let json = JSON.stringify({
-      flows,
-      links,
+      switches,
       "failure_rate": this.state.lambda,
       "time": this.state.time,
-      "tolerance": this.state.tolerance
+      "tolerance": this.state.tolerance,
+      "hops": this.state.hops
     });
 
     let requestOptions = {
@@ -101,7 +97,7 @@ class CriticalFlows extends Component {
       redirect: 'follow'
     };
     let {session_name} = this.props.match.params;
-    fetch(`http://localhost:5000/critf_link?session_name=${session_name}&eval_name=${this.props.eval_name}`,requestOptions)
+    fetch(`http://localhost:5000/critf_neigh?session_name=${session_name}&eval_name=${this.props.eval_name}`,requestOptions)
     .then(rsp => rsp.blob())
     .then(blob => {
       let a = document.createElement("a");
@@ -120,9 +116,9 @@ class CriticalFlows extends Component {
           and see which flows are impacted by possible link or switch failures
           given a failure rate of lambda.
         </p>
-        <h4>Impact of Link Failure</h4>
+        <h4>Impact of Switch Neighborhood Failure</h4>
         <p>
-          Select a set of links to fail, and see their impact on a specific flow.
+          Select a neighborhood of switches to fail, and see their impact on a specific flow
           Further explanation:
         </p>
         {/* Evaluation Name goes here*/}
@@ -172,30 +168,32 @@ class CriticalFlows extends Component {
               onChange={this.handleFormChange}
             />
           </label>
+          <label>
+            Hops:
+            <input
+              type="number"
+              name="hops"
+              min={0}
+              value={this.state.hops}
+              onChange={this.handleFormChange}
+            />
+          </label>
         </form>
-        <div>
-          {/* Display list of all flows and links*/}
-          <ItemTracker
-            name={"Flows"}
-            items={this.state.flows}
-            items_ch={this.state.flows_ch}
-            itemType={"flow"}
-            listType={"checkbox"}
-            handleItemCheck={this.handleFlowCheck}
-          />
-          <ItemTracker
-            name={"Links"}
-            items={this.state.links}
-            items_ch={this.state.links_ch}
-            itemType={"links"}
-            listType={"checkbox"}
-            handleItemCheck={this.handleLinksCheck}
-          />
-          <Button onClick={this.runLink}>Run</Button>
-        </div>
+        {/* Display list of all switches*/}
+        <ItemTracker
+          name={"Switches"}
+          items={this.state.switches}
+          items_ch={this.state.switches_ch}
+          hops={this.state.hops}
+          itemType={"neigh"}
+          listType={"checkbox"}
+
+          handleItemCheck={this.handleSwitchCheck}
+        />
+        <Button onClick={this.runSwitch}>Run</Button>
       </div>
     );
   }
 }
 
-export default withRouter(CriticalFlows);
+export default withRouter(CritNeighMetric);
