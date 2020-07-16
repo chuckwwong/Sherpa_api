@@ -80,7 +80,6 @@ class Home extends Component {
       // catching errors when backend fails
       console.log('error', error);
     });
-    console.log(this.state);
     // redirect to session page
     const {history} = this.props;
     if (this.state.success){

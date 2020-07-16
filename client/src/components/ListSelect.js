@@ -1,14 +1,15 @@
 import React, {Component} from 'react';
+import {withRouter} from 'react-router-dom';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 
 class ListSelect extends Component {
   constructor(props) {
     super(props);
+
     this.state = {
       sessions: [],
       name: '',
-
     }
   }
 
@@ -19,18 +20,19 @@ class ListSelect extends Component {
       this.setState({
         sessions: data.sessions
       });
-      console.log("session r",this.state.sessions);
     }).catch(error => console.log('error', error));
   }
 
-  deleteSession = () => {
-
+  handleRadio = event => {
+    const target = event.target;
+    console.log(target.value);
+    this.setState({
+      name: target.value
+    });
   }
 
-  loadSession = () => {
-    // given selected session name, call get request
-    // get session name and pass props
-    fetch(`http://localhost:5000/load?session_name=${this.state.name}`)
+  loadSession = async () => {
+    await fetch(`http://localhost:5000/load?session_name=${this.state.name}`)
     .then(rsp => rsp.json())
     .then(data => {
       console.log(data);
@@ -54,11 +56,19 @@ class ListSelect extends Component {
 
   listSessions = () => {
     return (
-      <div>
+      <div className="radio">
         {this.state.sessions.map((item,index) => (
-          <label id={item}>
-            {item}
-          </label>
+          <div>
+            <label>
+              <input
+                type="radio"
+                value={item}
+                checked={this.state.name === item}
+                onChange={this.handleRadio}
+              />
+              {item}
+            </label>
+          </div>
         ))}
       </div>
     );
@@ -80,18 +90,17 @@ class ListSelect extends Component {
         </Modal.Header>
         <Modal.Body>
           <p>
-            Under Construction
+            Load Previously Created Sessions:
           </p>
           {/* Function to list out all sessions, and let user select one*/}
           {this.listSessions()}
         </Modal.Body>
         <Modal.Footer>
-          <Button onClick={this.deleteSession}>Delete</Button>
-          <Button onClick={this.loadSession}>Load</Button>
+          <Button disabled={this.state.name === ''} onClick={this.loadSession}>Load</Button>
         </Modal.Footer>
       </Modal>
     );
   }
 }
 
-export default ListSelect;
+export default withRouter(ListSelect);
