@@ -173,7 +173,7 @@ class CriticalFlows extends Component {
             />
           </label>
         </form>
-        <div>
+        <div className="trackerContainer">
           {/* Display list of all flows and links*/}
           <ItemTracker
             name={"Flows"}
@@ -191,8 +191,8 @@ class CriticalFlows extends Component {
             listType={"checkbox"}
             handleItemCheck={this.handleLinksCheck}
           />
-          <Button onClick={this.runLink}>Run</Button>
         </div>
+        <Button onClick={this.runLink}>Run</Button>
       </div>
     );
   }

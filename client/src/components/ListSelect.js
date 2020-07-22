@@ -75,8 +75,6 @@ class ListSelect extends Component {
   }
 
   render() {
-    //const {} = this.props;
-
     // move load modal from home here
     return (
       <Modal id="loadModal"

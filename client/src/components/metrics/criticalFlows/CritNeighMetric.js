@@ -180,16 +180,18 @@ class CritNeighMetric extends Component {
           </label>
         </form>
         {/* Display list of all switches*/}
-        <ItemTracker
-          name={"Switches"}
-          items={this.state.switches}
-          items_ch={this.state.switches_ch}
-          hops={this.state.hops}
-          itemType={"neigh"}
-          listType={"checkbox"}
+        <div className="trackerContainer">
+          <ItemTracker
+            name={"Switches"}
+            items={this.state.switches}
+            items_ch={this.state.switches_ch}
+            hops={this.state.hops}
+            itemType={"neigh"}
+            listType={"checkbox"}
 
-          handleItemCheck={this.handleSwitchCheck}
-        />
+            handleItemCheck={this.handleSwitchCheck}
+          />
+        </div>
         <Button onClick={this.runSwitch}>Run</Button>
       </div>
     );

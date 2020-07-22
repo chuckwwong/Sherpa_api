@@ -117,22 +117,24 @@ class CustomSherpa extends Component {
             </label>
           </form>
           {/*Display list of all flows and links*/}
-          <ItemTracker
-            name={"Flows"}
-            items={this.state.flows}
-            items_ch={this.state.flows_ch}
-            itemType={"flow"}
-            listType={"checkbox"}
-            handleItemCheck={this.handleFlowCheck}
-          />
-          <ItemTracker
-            name={"Links"}
-            items={this.state.links}
-            items_ch={this.state.links_ch}
-            itemType={"links"}
-            listType={"checkbox"}
-            handleItemCheck={this.handleLinksCheck}
-          />
+          <div className="trackerContainer">
+            <ItemTracker
+              name={"Flows"}
+              items={this.state.flows}
+              items_ch={this.state.flows_ch}
+              itemType={"flow"}
+              listType={"checkbox"}
+              handleItemCheck={this.handleFlowCheck}
+            />
+            <ItemTracker
+              name={"Links"}
+              items={this.state.links}
+              items_ch={this.state.links_ch}
+              itemType={"links"}
+              listType={"checkbox"}
+              handleItemCheck={this.handleLinksCheck}
+            />
+          </div>
         </div>
         <Button onClick={this.runExp}>Run</Button>
       </div>

@@ -182,22 +182,24 @@ class CritSwitchMetric extends Component {
           </label>
         </form>
         {/* Display list of all flows and links*/}
-        <ItemTracker
-          name={"Flows"}
-          items={this.state.flows}
-          items_ch={this.state.flows_ch}
-          itemType={"flow"}
-          listType={"checkbox"}
-          handleItemCheck={this.handleFlowCheck}
-        />
-        <ItemTracker
-          name={"Switches"}
-          items={this.state.switches}
-          items_ch={this.state.switches_ch}
-          itemType={"switch"}
-          listType={"checkbox"}
-          handleItemCheck={this.handleSwitchCheck}
-        />
+        <div className="trackerContainer">
+          <ItemTracker
+            name={"Flows"}
+            items={this.state.flows}
+            items_ch={this.state.flows_ch}
+            itemType={"flow"}
+            listType={"checkbox"}
+            handleItemCheck={this.handleFlowCheck}
+          />
+          <ItemTracker
+            name={"Switches"}
+            items={this.state.switches}
+            items_ch={this.state.switches_ch}
+            itemType={"switch"}
+            listType={"checkbox"}
+            handleItemCheck={this.handleSwitchCheck}
+          />
+        </div>
         <Button onClick={this.runSwitch}>Run</Button>
       </div>
     );

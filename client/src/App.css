@@ -16,3 +16,29 @@
 .App-link {
   color: #61dafb;
 }
+
+.list {
+    overflow: auto;
+    height: 350px;
+} 
+
+.listParent{
+  flex: 1;
+  
+}
+
+.trackerContainer {
+    display: flex;
+    justify-content: space-between;
+}
+
+.navBars {
+    display: flex;
+    justify-content: space-between;
+}
+
+.content {
+    padding: 20px;
+    margin: 0 auto;
+    max-width: 800px;
+}

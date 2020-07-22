@@ -20,14 +20,16 @@ class ItemTracker extends Component {
         return (
           <div>
             {this.props.items.map((item,index) =>(
-              <label key={item}>
-                <input
-                  type={this.props.listType}
-                  checked={!!this.props.items_ch[item]}
-                  onChange={event => this.props.handleItemCheck(item,event)}
-                />
-                {item}
-              </label>
+              <div>
+                <label key={item}>
+                  <input
+                    type={this.props.listType}
+                    checked={!!this.props.items_ch[item]}
+                    onChange={event => this.props.handleItemCheck(item,event)}
+                  />
+                  {item}
+                </label>
+              </div>
             ))}
           </div>
         );
@@ -111,9 +113,11 @@ class ItemTracker extends Component {
 
     render() {
         return(
-          <div>
+          <div className="listParent">
             {this.props.name}:
-            {this.listItems()}
+            <div className="list">
+              {this.listItems()}
+            </div>
           </div>
         );
     }

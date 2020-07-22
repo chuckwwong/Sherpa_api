@@ -113,22 +113,24 @@ class SwitchMetric extends Component {
           and see which flows are impacted.
         </p>
         {/*List all flows switches in network here */}
-        <ItemTracker
-            name={"Flows"}
-            items={this.state.flows}
-            items_ch={this.state.flows_ch}
-            itemType={"flow"}
-            listType={"checkbox"}
-            handleItemCheck={this.handleFlowCheck}
-        />
-        <ItemTracker
-            name={"Switches"}
-            items={this.state.switches}
-            items_ch={this.state.switches_ch}
-            itemType={"switch"}
-            listType={"checkbox"}
-            handleItemCheck={this.handleSwitchCheck}
-        />
+        <div className="trackerContainer">
+          <ItemTracker
+              name={"Flows"}
+              items={this.state.flows}
+              items_ch={this.state.flows_ch}
+              itemType={"flow"}
+              listType={"checkbox"}
+              handleItemCheck={this.handleFlowCheck}
+          />
+          <ItemTracker
+              name={"Switches"}
+              items={this.state.switches}
+              items_ch={this.state.switches_ch}
+              itemType={"switch"}
+              listType={"checkbox"}
+              handleItemCheck={this.handleSwitchCheck}
+          />
+        </div>
       </div>
     );
   }

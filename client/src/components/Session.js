@@ -48,7 +48,7 @@ class Session extends Component {
         </Button>
         <h2>Session: {match.params.session_name}</h2>
         <div>
-          <div>
+          <div className="navBars">
             <NavLink to={`${match.url}`}>Critical Links</NavLink>
             <NavLink to={`${match.url}/crit_switch`}>Critical Switches</NavLink> 
             <NavLink to={`${match.url}/crit_neigh`}>Critical Neigh</NavLink>
