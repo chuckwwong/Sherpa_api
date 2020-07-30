@@ -96,6 +96,10 @@ class SwitchMetric extends Component {
     return (
       <div>
         <h3>Switch Metrics</h3>
+        <p>
+          Switch Metric Instructions: Select flows to test and switches to fail
+          to see which flows are impacted.
+        </p>
         <form>
           <label>
             Evaluation Name:
@@ -107,11 +111,6 @@ class SwitchMetric extends Component {
             />
           </label>
         </form>
-        <Button onClick={this.runSwitch}>Run</Button>
-        <p>
-          Switch Metric Instructions: Select switches
-          and see which flows are impacted.
-        </p>
         {/*List all flows switches in network here */}
         <div className="trackerContainer">
           <ItemTracker
@@ -131,6 +130,7 @@ class SwitchMetric extends Component {
               handleItemCheck={this.handleSwitchCheck}
           />
         </div>
+        <Button onClick={this.runSwitch}>Run</Button>
       </div>
     );
   }

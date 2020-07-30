@@ -128,8 +128,7 @@ def parseSession(session_path,eval_path=''):
     session_file = session_path
     if not os.path.isfile(session_file):
         print('Session file',session_file,'does not exist', file=sys.stderr )
-        #### replace with return Error
-        os._exit(1)
+        raise ValueError("Session file does not exist")
 
     session_dict = readFile( session_file, 'Problem reading sessions file '+session_file )
 

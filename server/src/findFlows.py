@@ -71,7 +71,7 @@ def readTopoFile( topo_file ):
 
     except:
         print('Problem reading topology json file', file=sys.stderr )
-        os._exit(1)
+        raise Exception
 
     return tdict['one_hop_neighbor_nodes']
 
@@ -82,7 +82,7 @@ def readRulesFile( rules_file ):
             rdict = json.loads(rstr)
     except:
         print('Problem reading rules json file', file=sys.stderr )
-        os._exit(1)
+        raise Exception
 
     return rdict
 
@@ -93,7 +93,7 @@ def readIPFile( ip_file ):
             nodeIPs = json.loads(ipstr)
     except:
         print('Problem reading IP json file', file=sys.stderr )
-        os._exit(1)
+        raise Exception
 
     return nodeIPs
 
@@ -277,8 +277,7 @@ def findFlows(top_file,rule_file,ipn_file,mh,out_file,sess_file,sw_file):
         newAttributes = True
 
     if newAttributes:
-        #### Change to return error
-        os._exit(1)
+        raise Exception
 
     buildLinkState( switches, linkState )
 
@@ -313,7 +312,3 @@ def findFlows(top_file,rule_file,ipn_file,mh,out_file,sess_file,sw_file):
         with open(switch_file,'w') as swf:
             wstr = json.dumps( switchDict, indent=4 )
             swf.write(wstr)
-
-if __name__ == "__main__":
-    findFlows(sys.argv[1:])
-

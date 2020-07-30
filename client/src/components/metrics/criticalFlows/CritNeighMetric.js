@@ -114,12 +114,16 @@ class CritNeighMetric extends Component {
         <p>
           Critical Flows Metric Instructions: Select all critical flows
           and see which flows are impacted by possible link or switch failures
-          given a failure rate of lambda.
+          given a failure rate of lambda and tolerance level (both of which are decimal
+          values).
         </p>
         <h4>Impact of Switch Neighborhood Failure</h4>
         <p>
-          Select a neighborhood of switches to fail, and see their impact on a specific flow
-          Further explanation:
+          Select a single source switch to fail, which will be the center of the neighborhood of switches to fail.
+          The value of the neighborhood hops indicates how wide the neighborhood of failure spreads from the source switch.
+          Given the selected source switch to fail, we can find the probability that the connectivity of all flows
+          is lost as a result of the neighborhood of switch failing when the controller is disconnected from the
+          network for a period of time specified by the user.
         </p>
         {/* Evaluation Name goes here*/}
         <form>

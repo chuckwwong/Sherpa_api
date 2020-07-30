@@ -69,7 +69,7 @@ def readTopoFile( topo_file ):
 
     except:
         print('Problem reading topology json file', file=sys.stderr)
-        os._exit(1)
+        raise Exception
 
     return tdict['one_hop_neighbor_nodes']
 
@@ -80,7 +80,7 @@ def readRulesFile( rules_file ):
             rdict = json.loads(rstr)
     except:
         print('Problem reading rules json file', file=sys.stderr )
-        os._exit(1)
+        raise Exception
 
     return rdict
 
@@ -91,7 +91,7 @@ def readIPFile( ip_file ):
             nodeIPs = json.loads(ipstr)
     except:
         print('Problem reading IP json file', file=sys.stderr )
-        os._exit(1)
+        raise Exception
 
     return nodeIPs
 
@@ -102,7 +102,7 @@ def readFlowsFile( flows_file ):
             fdict = json.loads(fstr)
     except:
         print('Problem reading flows json file', file=sys.stderr )
-        os._exit(1)
+        raise Exception
 
     return fdict
 
@@ -114,7 +114,7 @@ def readEvalsFile( evals_file ):
             edict = json.loads(estr)
     except:
         print('Problem reading evaluation json file', file=sys.stderr )
-        os._exit(1)
+        raise Exception
 
     return edict
 
@@ -126,7 +126,7 @@ def readSwitchFile( switch_file):
             sdict = json.loads(sstr)
     except:
         print('Problem reading evaluation json file', file=sys.stderr )
-        os._exit(1)
+        raise Exception
 
     return sdict
 
@@ -146,16 +146,16 @@ def validateFlows( switches, flowIds, linkState, neighborMap ):
         ### make sure that nsrc and ndst are known nodes
         if nsrc not in switches: 
             print('node', nsrc,'listed in flows but does not appear in topology', file=sys.stderr )
-            os._exit(1)
+            raise Exception
 
         if ndst not in switches: 
             print('node', dst, 'listed in flows but does not appear in topology', file=sys.stderr )
-            os._exit(1)
+            raise Exception
 
         ### make sure that if nw_dst exists it is in IP format
         if nw_dst is not None and not inIPFormat( nw_dst ):
             print('nw_dst value', nw_dst,'not recognized as IP address', file=sys.stderr )
-            os._exit(1)
+            raise Exception
 
 
     ### try to route each flow
@@ -410,7 +410,7 @@ def build_network(eval_path,out_path,type_m=None):
         newAttributes = True
 
     if newAttributes:
-        os._exit(1)
+        raise Exception
 
     linkState = {}
     buildLinkState( switches, linkState )

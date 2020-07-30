@@ -101,8 +101,8 @@ class CustomSherpa extends Component {
         <h3>Custom Sherpa Metrics</h3>
         <p>
           Custom Sherpa Metric Instructions: This option allows you
-          to interface with the sherpa engine directly. Select all 
-          important flows and links to fail.
+          to interface with the sherpa engine mannually. Select all 
+          important flows and links to fail to see if the flow will fail.
         </p>
         <div>
           <form>

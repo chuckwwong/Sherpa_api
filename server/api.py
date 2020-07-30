@@ -203,8 +203,6 @@ def run_sherpa():
     output:
         output file:  json output of experiment ran on evaluation
     '''
-    #### Need to make atomic in case of operation failure
-
     sess_file, eval_file, out_file = get_sess_eval_out_path(request)
 
     # get selected flows and links array
@@ -212,12 +210,20 @@ def run_sherpa():
     flows = form_json['flows']
     links = form_json['links']
 
-    # run evalution on chosen flows and links
-    makeEvals.make_Eval(sess_file,eval_file,flows,links)
-    # run experiment from created evaluation
-    sherpa.run_exp(eval_file,out_file)
-    # fetch experiment file and return it
-    return send_file(out_file,as_attachment=True)
+    try:
+        # run evalution on chosen flows and links
+        makeEvals.make_Eval(sess_file,eval_file,flows,links)
+        # run experiment from created evaluation
+        sherpa.run_exp(eval_file,out_file)
+        # fetch experiment file and return it
+        return send_file(out_file,as_attachment=True)
+    except:
+        print("Error",sys.exc_info()[0])
+        if os.path.exists(eval_file):
+            shutil.rmtree(eval_file)
+        if os.path.exists(out_file):
+            shutil.rmtree(out_file)
+        return ret_json(False,status=500,msg=sys.exc_info()[0])
 
 
 @app.route('/switch',methods=["POST"])
@@ -236,8 +242,6 @@ def run_switch():
     output:
         output file:  json output of experiment ran on evaluation
     '''
-    #### Need to make atomic in case of operation failure
-
     sess_file, eval_file, out_file = get_sess_eval_out_path(request)
 
     # get selected flows and switch array
@@ -245,14 +249,22 @@ def run_switch():
     flows = form_json['flows']
     switches = form_json['switches']
 
-    ## map selected switches to list of links
-    links = makeEvals.switch2Link(sess_file,switches)
-    # run evalution on chosen flows and links
-    makeEvals.make_Eval(sess_file,eval_file,flows,links)
-    # run experiment from created evaluation
-    sherpa.run_exp(eval_file,out_file)
-    # fetch experiment file and return it
-    return send_file(out_file,as_attachment=True)
+    try:
+        ## map selected switches to list of links
+        links = makeEvals.switch2Link(sess_file,switches)
+        # run evalution on chosen flows and links
+        makeEvals.make_Eval(sess_file,eval_file,flows,links)
+        # run experiment from created evaluation
+        sherpa.run_exp(eval_file,out_file)
+        # fetch experiment file and return it
+        return send_file(out_file,as_attachment=True)
+    except:
+        print("Error",sys.exc_info()[0])
+        if os.path.exists(eval_file):
+            shutil.rmtree(eval_file)
+        if os.path.exists(out_file):
+            shutil.rmtree(out_file)
+        return ret_json(False,status=500,msg=sys.exc_info()[0])
 
 @app.route('/critf_link',methods=["POST"])
 def critf_link():
@@ -280,8 +292,6 @@ def critf_link():
     output:
         output file:  json output of experiment ran on evaluation
     '''
-    #### Need to make atomic in case of operation failure
-
     sess_file, eval_file, out_file = get_sess_eval_out_path(request)
 
     form_json = request.get_json()
@@ -294,12 +304,20 @@ def critf_link():
     # create parameter dictionary
     param = {'failure_rate':f_rate,'time':time,'tolerance':tolerate}
 
-    ## create evaluation file to be stored in 
-    makeEvals.make_Eval(sess_file,eval_file,flows,links,param,type_m="link")
-    ## from evaluation file run sherpa to generate the metric
-    sherpa.run_critf(eval_file,out_file)
-    ## return the output from the experiment
-    return send_file(out_file,as_attachment=True)
+    try:
+        ## create evaluation file to be stored in 
+        makeEvals.make_Eval(sess_file,eval_file,flows,links,param,type_m="link")
+        ## from evaluation file run sherpa to generate the metric
+        sherpa.run_critf(eval_file,out_file)
+        ## return the output from the experiment
+        return send_file(out_file,as_attachment=True)
+    except:
+        print("Error",sys.exc_info()[0])
+        if os.path.exists(eval_file):
+            shutil.rmtree(eval_file)
+        if os.path.exists(out_file):
+            shutil.rmtree(out_file)
+        return ret_json(False,status=500,msg=sys.exc_info()[0])
 
 @app.route('/critf_switch',methods=["POST"])
 def critf_switch():
@@ -316,11 +334,19 @@ def critf_switch():
     # create parameter dictionary
     param = {'failure_rate':f_rate,'time':time,'tolerance':tolerate}
 
-    ## create evaluation file to be stored in 
-    makeEvals.make_Eval(sess_file,eval_file,flows,links=switches,param=param,type_m="switch")
+    try:
+        ## create evaluation file to be stored in 
+        makeEvals.make_Eval(sess_file,eval_file,flows,links=switches,param=param,type_m="switch")
 
-    sherpa.run_critf(eval_file,out_file,type_m="switch")
-    return send_file(out_file,as_attachment=True)
+        sherpa.run_critf(eval_file,out_file,type_m="switch")
+        return send_file(out_file,as_attachment=True)
+    except:
+        print("Error",sys.exc_info()[0])
+        if os.path.exists(eval_file):
+            shutil.rmtree(eval_file)
+        if os.path.exists(out_file):
+            shutil.rmtree(out_file)
+        return ret_json(False,status=500,msg=sys.exc_info()[0])
 
 @app.route('/critf_neigh',methods=["POST"])
 def critf_neigh():
@@ -338,12 +364,19 @@ def critf_neigh():
     # create parameter dictionary
     param = {'failure_rate':f_rate,'time':time,'hops':hops,'tolerance':tolerate}
 
-    ## create evaluation file to be stored in 
-    makeEvals.make_Eval(sess_file,eval_file,flows=None,links=switches,param=param,type_m="neigh")
-    ## from evaluation file, run sherpa neighborhood
-    sherpa.run_critf(eval_file,out_file,type_m="neigh")
-    return send_file(out_file,as_attachment=True)
-
+    try:
+        ## create evaluation file to be stored in 
+        makeEvals.make_Eval(sess_file,eval_file,flows=None,links=switches,param=param,type_m="neigh")
+        ## from evaluation file, run sherpa neighborhood
+        sherpa.run_critf(eval_file,out_file,type_m="neigh")
+        return send_file(out_file,as_attachment=True)
+    except:
+        print("Error",sys.exc_info()[0])
+        if os.path.exists(eval_file):
+            shutil.rmtree(eval_file)
+        if os.path.exists(out_file):
+            shutil.rmtree(out_file)
+        return ret_json(False,status=500,msg=sys.exc_info()[0])
 
 @app.route('/evals',methods=["GET"])
 def get_evals():

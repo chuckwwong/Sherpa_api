@@ -118,12 +118,14 @@ class CriticalFlows extends Component {
         <p>
           Critical Flows Metric Instructions: Select all critical flows
           and see which flows are impacted by possible link or switch failures
-          given a failure rate of lambda.
+          given a failure rate of lambda and tolerance level (both of which are decimal
+          values). 
         </p>
         <h4>Impact of Link Failure</h4>
         <p>
-          Select a set of links to fail, and see their impact on a specific flow.
-          Further explanation:
+          Select a set of links to fail to find the probability that the connectivity of the selected
+          flow F is lost as a result of link failures when the controller is disconnected from the network
+          for a period of time specified by the the user.
         </p>
         {/* Evaluation Name goes here*/}
         <form>

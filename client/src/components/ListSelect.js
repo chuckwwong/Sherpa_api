@@ -88,7 +88,7 @@ class ListSelect extends Component {
         </Modal.Header>
         <Modal.Body>
           <p>
-            Load Previously Created Sessions:
+            Select one of the previously created sessions to load.
           </p>
           {/* Function to list out all sessions, and let user select one*/}
           {this.listSessions()}
