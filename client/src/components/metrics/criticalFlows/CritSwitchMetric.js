@@ -23,9 +23,9 @@ class CritSwitchMetric extends Component {
       flows_ch: {},
       switches: {},
       switches_ch: {},
-      lambda: 0,
+      lambda: undefined,
       time: 1,
-      tolerance: 0,
+      tolerance: undefined,
       output_f: undefined
     }
   }

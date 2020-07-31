@@ -13,9 +13,9 @@ class CriticalFlows extends Component {
       links:[],
       flows_ch: {},
       links_ch: {},
-      lambda: 0,
+      lambda: undefined,
       time: 1,
-      tolerance: 0,
+      tolerance: undefined,
       output_f: undefined
     };
 
