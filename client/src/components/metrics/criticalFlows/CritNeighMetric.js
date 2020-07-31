@@ -23,9 +23,9 @@ class CritNeighMetric extends Component {
       switches: {},
       switches_ch: {},
       hops: 0,
-      lambda: 0,
+      lambda: undefined,
       time: 1,
-      tolerance: 0,
+      tolerance: undefined,
       output_f: undefined
     }
   }
@@ -144,6 +144,8 @@ class CritNeighMetric extends Component {
               name="lambda"
               max={1}
               min={0}
+              step={0.0001}
+              placeholder='0.4'
               required={true}
               value={this.state.lambda}
               onChange={this.handleFormChange}
@@ -168,6 +170,8 @@ class CritNeighMetric extends Component {
               name="tolerance"
               max={1}
               min={0}
+              placeholder='0.25'
+              step={0.0001}
               value={this.state.tolerance}
               onChange={this.handleFormChange}
             />

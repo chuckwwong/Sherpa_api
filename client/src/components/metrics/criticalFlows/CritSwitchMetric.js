@@ -155,6 +155,8 @@ class CritSwitchMetric extends Component {
               name="lambda"
               max={1}
               min={0}
+              step={0.0001}
+              placeholder='0.4'
               value={this.state.lambda}
               onChange={this.handleFormChange}
             />
@@ -178,6 +180,8 @@ class CritSwitchMetric extends Component {
               name="tolerance"
               max={1}
               min={0}
+              step={0.0001}
+              placeholder='0.4'
               value={this.state.tolerance}
               onChange={this.handleFormChange}
             />
