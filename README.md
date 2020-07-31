@@ -41,6 +41,10 @@ cd client
 npm start
 ```
 
+## Upload Network Topology Data
+
+In the server folder, sample topologies, provided by Boeing, can be found on what files to upload to the web service.
+
 ### Contact
 Questions can be passed to the SHERPA developer at dmnicol@illinois.edu
 
