@@ -312,7 +312,7 @@ def make_eval_link(evalsDict, type_m="link"):
         # there's no point in running evaluation
         if not visited:
             # evaluations corresponding to this flow is empty, signifying 0 probability of failing
-            continue
+            pass
         else:
             if type_m == "switch":
                 links = evalDict["switches"]

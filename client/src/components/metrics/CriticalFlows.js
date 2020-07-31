@@ -101,7 +101,7 @@ class CriticalFlows extends Component {
       redirect: 'follow'
     };
     let {session_name} = this.props.match.params;
-    fetch(`http://localhost:5000/critf_link?session_name=${session_name}&eval_name=${this.props.eval_name}`,requestOptions)
+    fetch(`http://localhost:5000/critf_link?session_name=${session_name}&eval_name=${this.state.eval_name}`,requestOptions)
     .then(rsp => rsp.blob())
     .then(blob => {
       let a = document.createElement("a");
