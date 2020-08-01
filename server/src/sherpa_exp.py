@@ -149,13 +149,17 @@ def calculate_metric(flows,evals, evalsDict, switches, linkState, neighborMap):
         probability_t: - the metric, which is Sum(i from 1 to L) p_m[i]*p_x[i]
     '''
     probability_t = 0
-    probability_e = 0
     params = evalsDict["parameters"]
     tolerance = float(params["tolerance"])
     f_r = float(params["failure_rate"])
     time = int(params["time"])
 
     L = len(evals)
+
+    lambda_x = L * f_r * time
+    ## total probability does not include P[F fails|0 links fail], since its always 0
+    ## however, when considering an upperbound, we need to take it into consideration.
+    probability_e = math.exp(-1*lambda_x)
 
     for i, link_c in enumerate(evals):
         # calculate probability f fails given i+1 links fail in time T
@@ -168,12 +172,12 @@ def calculate_metric(flows,evals, evalsDict, switches, linkState, neighborMap):
         p_m = p_m/nCr(L,i+1)
 
         # calculate probability that i links fail in time T with Poisson distribution
-        # not sure if I should include Time
-        p_x = (f_r*L)**(i+1) * math.exp(-f_r*L)/math.factorial(i+1)
+        p_x = (lambda_x)**(i+1) * math.exp(-1*lambda_x)/math.factorial(i+1)
 
         probability_e += p_x
-        print(i+1,"p_e",(1-probability_e),"p_t",(tolerance*(probability_t+p_m*p_x)))
-        if (1- probability_e) < tolerance * (probability_t + p_m*p_x):
+        #print(i+1,"p_x",(p_x))
+        #print(i+1,"p_e",(1-probability_e),"p_t",(tolerance*(probability_t+p_m*p_x)))
+        if (i > 0 and ((1- probability_e) < (tolerance * (probability_t + p_m*p_x)))):
             bound = i+1
             return probability_t, bound
         else:
