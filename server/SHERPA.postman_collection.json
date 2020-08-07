@@ -18,26 +18,26 @@
 							"contentType": "application/json",
 							"description": "network topology json file",
 							"type": "file",
-							"src": "/Users/chuckwong/Documents/SDN_Research/sherpa/models/topo2/topo2_topology.json"
+							"src": "/Users/chuckwong/Documents/SDN_Research/sherpa/models/topo1/topo1_topology.json"
 						},
 						{
 							"key": "rules",
 							"contentType": "application/json",
 							"description": "flow rules json file",
 							"type": "file",
-							"src": "/Users/chuckwong/Documents/SDN_Research/sherpa/models/topo2/topo2_flows.json"
+							"src": "/Users/chuckwong/Documents/SDN_Research/sherpa/models/topo1/topo1_flows.json"
 						},
 						{
 							"key": "nodeIPs",
 							"contentType": "json",
 							"description": "nodeIP json file",
 							"type": "file",
-							"src": "/Users/chuckwong/Documents/SDN_Research/sherpa/models/topo2/n2ip.json"
+							"src": "/Users/chuckwong/Documents/SDN_Research/sherpa/models/topo1/n2ip.json"
 						}
 					]
 				},
 				"url": {
-					"raw": "http://127.0.0.1:5000/upload?name=SampleSession&mh=6",
+					"raw": "http://127.0.0.1:5000/upload?name=TestUpload&mh=2",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -52,11 +52,11 @@
 					"query": [
 						{
 							"key": "name",
-							"value": "SampleSession"
+							"value": "TestUpload"
 						},
 						{
 							"key": "mh",
-							"value": "6"
+							"value": "2"
 						}
 					]
 				},
@@ -113,48 +113,6 @@
 					]
 				},
 				"description": "this api test is to make sure the end point to load in previous uploaded files can be reused to run experiments again."
-			},
-			"response": []
-		},
-		{
-			"name": "Run Experiment Test",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"flows\": [\n        \"n1-n15-1\",\n        \"n10-n12-2\"\n    ],\n    \"links\": [\n        \"n1-n4\",\n        \"n11-n9\"\n    ]\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "http://127.0.0.1:5000/run?session_name=TestUpload_mh_2&eval_name=testSherp",
-					"protocol": "http",
-					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
-					],
-					"port": "5000",
-					"path": [
-						"run"
-					],
-					"query": [
-						{
-							"key": "session_name",
-							"value": "TestUpload_mh_2"
-						},
-						{
-							"key": "eval_name",
-							"value": "testSherp"
-						}
-					]
-				},
-				"description": "Using a simple array of flows and links, see if the evaluation and sherpa experiment works"
 			},
 			"response": []
 		},
@@ -217,13 +175,55 @@
 			"response": []
 		},
 		{
+			"name": "Run Experiment Test",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"flows\": [\n        \"n1-n15-1\",\n        \"n10-n12-2\"\n    ],\n    \"links\": [\n        \"n1-n4\",\n        \"n11-n9\"\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/sherpa?session_name=TestUpload_mh_2&eval_name=testSherp",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"sherpa"
+					],
+					"query": [
+						{
+							"key": "session_name",
+							"value": "TestUpload_mh_2"
+						},
+						{
+							"key": "eval_name",
+							"value": "testSherp"
+						}
+					]
+				},
+				"description": "Using a simple array of flows and links, see if the evaluation and sherpa experiment works"
+			},
+			"response": []
+		},
+		{
 			"name": "Switch Metric (Case 2)",
 			"request": {
 				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"flows\": [\n\t\t\"n14-n11-0\",\n\t\t\"n11-n14-2\",\n\t\t\"n10-n12-2\",\n\t\t\"n10-n9-2\"\n\t],\n\t\"switch\": [\n\t\t\"n6\",\n\t\t\"n12\"\n\t]\n}",
+					"raw": "{\n\t\"flows\": [\n\t\t\"n14-n11-0\",\n\t\t\"n11-n14-2\",\n\t\t\"n10-n12-2\",\n\t\t\"n10-n9-2\"\n\t],\n\t\"switches\": [\n\t\t\"n6\",\n\t\t\"n12\"\n\t]\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -265,7 +265,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"flows\": [\n\t\t\"n10-n9-1\"\n\t],\n\t\"links\": [\n\t\t\"n12-n6\",\n        \"n10-n6\",\n        \"n12-n9\",\n        \"n2-n3\",\n        \"n6-n9\",\n        \"n11-n14\",\n        \"n10-n9\"\n\t],\n\t\"failure_rate\": 0.5,\n\t\"time\": 5,\n\t\"tolerance\": 0.2\n}",
+					"raw": "{\n\t\"flows\": [\n\t\t\"n2-n6-7\",\n\t\t\"n2-n15-2\"\n\t],\n\t\"links\": [\n\t\t\"n15-n2\",\n        \"n15-n6\",\n        \"n15-n8\",\n        \"n2-n3\",\n        \"n2-n4\",\n        \"n2-n6\",\n        \"n3-n4\",\n        \"n3-n6\",\n        \"n6-n8\"\n\t],\n\t\"failure_rate\": 0.11111111,\n\t\"time\": 2,\n\t\"tolerance\": 0.4\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -273,7 +273,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://127.0.0.1:5000/critf_link?session_name=SampleSession_mh_6&eval_name=testCritLink",
+					"raw": "http://127.0.0.1:5000/critf_link?session_name=SampleSession_mh_6&eval_name=testPoisson",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -292,11 +292,94 @@
 						},
 						{
 							"key": "eval_name",
-							"value": "testCritLink"
+							"value": "testPoisson"
 						}
 					]
 				},
 				"description": "Select critical flows, select possible links to fail, select time epoch, and failure rate of links."
+			},
+			"response": []
+		},
+		{
+			"name": "Critical Flow w.r.t Switch Neighborhood",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"switches\": [\n\t\t\"n10\", \"n3\"\n\t],\n\t\"failure_rate\": 0.5,\n\t\"time\": 5,\n\t\"hops\": 1,\n\t\"tolerance\": 0\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/critf_neigh?session_name=SampleSession_mh_6&eval_name=testCritNeigh",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"critf_neigh"
+					],
+					"query": [
+						{
+							"key": "session_name",
+							"value": "SampleSession_mh_6"
+						},
+						{
+							"key": "eval_name",
+							"value": "testCritNeigh"
+						}
+					]
+				},
+				"description": "Select switch and a hop to get the probability that any flow fails due to the switch neighborhood failure"
+			},
+			"response": []
+		},
+		{
+			"name": "Critical Flows w.r.t Switches",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"flows\": [\n\t\t\"n10-n9-1\"\n\t],\n\t\"switches\": [\n\t\t\"n10\",\n\t\t\"n6\",\n\t\t\"n15\"\n\t],\n\t\"failure_rate\": 0.5,\n\t\"time\": 5,\n\t\"tolerance\": 0.01\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/critf_switch?session_name=SampleSession_mh_6&eval_name=testCritSwitch",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"critf_switch"
+					],
+					"query": [
+						{
+							"key": "session_name",
+							"value": "SampleSession_mh_6"
+						},
+						{
+							"key": "eval_name",
+							"value": "testCritSwitch"
+						}
+					]
+				}
 			},
 			"response": []
 		}
